@@ -10,8 +10,7 @@ let float = digit+('.')digit*
 let letter = ['a'-'z' 'A'-'Z']
 let string = ('"'[^'"''\\']*('\\'_[^'"''\\']*)*'"')
 let array = ('[' ((digit+',')*|(float ',')*|(string ',')*) ']' ) (*homogenous array*)
-(*TODO-> tuple regex*)
-
+let tuple = ('(' (((digit+',')|(string ',')|(float ','))*((digit+)|string|float)?)?')')
 rule coralToken = parse
     [' ' '\r'] { token lexbuf } 
 | '#'         { comment lexbuf }
@@ -76,7 +75,8 @@ rule coralToken = parse
 | 'catch'   { CATCH }
 | '->'      { RVAL }
 | "except"  { EXCEPT }
-| array as arr {ARRAY (arr)}
+| array as arr { ARRAY (arr) }
+| tuple as tup { TUPLE (tup) }
 | digit+ as lem {Literal (int_of_string lem)}
 | float as fl {Float_Lit (float_of_string fl)}
 | letter (letter | digit | '_')* as id  {Variable (id)} (*capturing the value of ID*)
