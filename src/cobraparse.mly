@@ -84,7 +84,7 @@ stmt_rule:
  | ELIF expr_rule Colon EOL statement_block {elif($2,$5)}
 
 statement_block:
-INDENT stmt_rule_list DEDENT {Block ($2)}
+INDENT stmt_rule_list {Block ($2)}
 list_parameter_list:
 (*no argument*) {[]}
     |list_arg list_parameter_list {$1::$2}
@@ -103,15 +103,13 @@ list_argument:
 | expr_rule {[$1]}
 | expr_rule COMMA list_argument {$1 :: $3}
 (*encountering shift/reduce conflict*)
-lvalue:
+all_val:
   bind_var {Variable ($1)}
   | list_access { $1 }
   | LBRACK list_argument RBRACK  {$2}
 (*occurs shift/reduce conflicts*)
-
 list_access:
   | expr_rule LBRACK expr_rule RBRACK { ListAccess($1, $3) }
-  | expr_rule LBRACK expr_rule Colon expr_rule RBRACK { ListSlice($1, $3, $5) }
 
 
 expr_rule:
@@ -127,7 +125,7 @@ expr_rule:
     | LPAREN list_argument RPAREN {List($2)}  (*tuple()*)
     | LPAREN expr_rule RPAREN {$2}
     | DEF VARTUAL Variable LPAREN list_parameter_list RPAREN {Virtual_fun(Bind($3,Dynamic),$5)}
-    | lvalue ASSIGN expr_rule {Assign ($1, $3)}
+    | all_val ASSIGN expr_rule {Assign ($1, $3)}
     | expr_rule binop expr_rule {Binop ($1,$2,$3)}
     | NEW expr_rule {Memory_manage (New, $2)}
     | DEREF expr_rule {Memory_manage (Deref, $2)} 
@@ -153,7 +151,10 @@ binop:
 /*
     the shift/reduce conflict
     1. expr: 
-    | lvalue ASSIGN expr_rule {Assign ($1, $3)}
+    | 
+    
+    
+     ASSIGN expr_rule {Assign ($1, $3)}
     | expr_rule binop expr_rule {Binop ($1,$2,$3)}
     | NEW expr_rule {Memory_manage (New, $2)}
     |  expr_rule LPAREN list_argument RPAREN {Func_call($1,$3)}(*function call example  x(4,5)*)

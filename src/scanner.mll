@@ -8,7 +8,7 @@ let float = digit+'.'digit*
 let letter = ['a'-'z' 'A'-'Z']
 let string = ('"'[^'"''\\']*('\\'_[^'"''\\']*)*'"')
 
-rule coralToken = parse
+rule corbraToken = parse
     [' ' '\r'] { token lexbuf } 
 | '#'         { comment lexbuf }
 | '\n'      { EOL}
