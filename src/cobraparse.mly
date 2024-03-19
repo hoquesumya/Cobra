@@ -15,6 +15,9 @@
 %token INDENT DEDENT (*to keep track of the indentation for block of statement*)
 %token EOF TUPLE LIST VARTUAL
 
+%start tokenize
+%type <token list> tokenize 
+
 
 %start program_rule
 %type <Ast.program>program_rule
@@ -40,6 +43,71 @@
 %nonassoc RPAREN RBRACK RBRACE
 %%
 
+tokenize:
+  | seq EOL { $1 @ [EOL] }
+  | EOL { NOP :: [EOL] }
+
+/* seq: an auxillary target used to handle shift reduce errors in tokenize */
+
+seq:
+  | token { [$1] }
+  | token seq { $1 :: $2 }
+token:
+
+  | Colon { Colon }
+  | TAB { TAB }
+  | RVAL{ RVAL }
+  | RETURN { RETURN }
+  | NOT { NOT }
+  | IF { IF }
+  | ELSE { ELSE }
+  | FOR { FOR }
+  | WHILE { WHILE }
+  | DEF { DEF }
+  | NEQ { NEQ }
+  | LT { LT }
+  | GT { GT }
+  | LTEQ { LTEQ }
+  | RTEQ { RTEQ }
+  | AND { AND }
+  | CONTINUE { CONTINUE }
+  | BREAK { BREAK }
+  | OR { OR }
+  | IN { IN }
+  | PLUS { PLUS }
+  | MINUS { MINUS }
+  | TIMES { TIMES }
+  | DIVIDE { DIVIDE }
+  | EXP { EXP }
+  | PLUSEQ { PLUSEQ }
+  | MINUSEQ { MINUSEQ }
+  | TIMESEQ { TIMESEQ }
+  | DIVIDEEQ { DIVIDEEQ }
+  | LPAREN { LPAREN }
+  | RPAREN { RPAREN }
+  | LBRACK { LBRACK }
+  | RBRACK { RBRACK }
+  | LBRACE { LBRACE }
+  | RBRACE { RBRACE }
+  | EQ { EQ }
+  | ASSIGN { ASSIGN }
+  | BOOL { BOOL }
+  | INT { INT }
+  | FLOAT { FLOAT }
+  | STRING { STRING }
+  | INDENT { INDENT }
+  | DEDENT { DEDENT }
+  | Variable { Variable($1) }
+  | Float_Lit { Float_Lit($1) }
+  | Literal { Literal($1) }
+  | BLIT { BLIT($1) }
+  |  String_Lit  {  String_Lit ($1) }
+  | EOF { EOF }
+  | CLASS { CLASS }
+  | DOT { DOT }
+  | RANGE { RANGE }
+
+
 program_rule:
  |stmt_rule_list EOF {{body=$1}}
 
@@ -47,7 +115,6 @@ program_rule:
 stmt_rule_list:
  (*nothing no statement*)  {[]}
  |stmt_rule stmt_rule_list {$1 :: $2} (*head of the list followed by tail*)
-
 (*
 define stmt consists of termainals and nonterminals
 *)
@@ -62,8 +129,6 @@ INT {Int}
 stmt_rule:
  expr_rule EOL {Expr ($1)}
  |stmt_rule EOL {$1}
- | DEF Variable LPAREN list_parameter_list RPAREN Colon EOL statement_block{Function(Bind($2,Dynamic),$4,$8)}
- | DEF Variable LPAREN list_parameter_list RPAREN RVAL typ Colon EOL statement_block {Function(Bind($2,$7),$4,$10)}
  | RETURN expr_rule EOL {$2}
  | CLASS Variable LPAREN list_parameter_list RPAREN Colon EOL statement_block {Class ($2,$4,$8)}
  | VIRTUAL CLASS Variable Colon statement_block {Virtual_Class($3,$5)}
@@ -126,33 +191,31 @@ expr_rule:
     | LPAREN expr_rule RPAREN {$2}
     | DEF VARTUAL Variable LPAREN list_parameter_list RPAREN {Virtual_fun(Bind($3,Dynamic),$5)}
     | all_val ASSIGN expr_rule {Assign ($1, $3)}
-    | expr_rule binop expr_rule {Binop ($1,$2,$3)}
+    | expr_rule EQ expr_rule {Binop ($1,Eq,$3)}
+    | expr_rule NEQ expr_rule { Binop ($1, NEq, $3)}
+    | expr_rule LT expr_rule { Binop ($1, Lt, $3)}
+    | expr_rule GT expr_rule { Binop ($1, Gt, $3)}
+    | expr_rule PLUS expr_rule { Binop ($1, Plus, $3)}
+    | expr_rule MINUS expr_rule { Binop ($1, Minus, $3)}
+    | expr_rule TIMES expr_rule { Binop ($1, Times, $3)}
+    | expr_rule DIVIDE expr_rule { Binop ($1, Divde, $3)}
+    | expr_rule EXP expr_rule { Binop ($1, Exp, $3)}
+    | expr_rule LTEQ expr_rule { Binop ($1, Lteq, $3)}
+    | expr_rule RTEQ expr_rule { Binop ($1, Rteq, $3)}
+    | expr_rule OR expr_rule   {Binop ($1, Or, $3)}
+    | expr_rule AND expr_rule   {Binop ($1, And, $3)}
     | NEW expr_rule {Memory_manage (New, $2)}
     | DEREF expr_rule {Memory_manage (Deref, $2)} 
+    | expr_rule LPAREN list_argument RPAREN {Func_call($1,$3)}
 
 
 
-binop:
- | EQ {Eq}
- | NEQ {NEq}
- | LT {Lt}
- | GT {Gt}
- | PLUS {Plus}
- | MINUS {Minus}
- | TIMES {Times}
- | DIVIDE {Divde}
- | EXP {Exp}
- | LTEQ {Lteq}
- | RTEQ{Rteq}
- | OR {Or}
- | AND {And}
 
 
 /*
     the shift/reduce conflict
     1. expr: 
     | 
-    
     
      ASSIGN expr_rule {Assign ($1, $3)}
     | expr_rule binop expr_rule {Binop ($1,$2,$3)}
