@@ -23,8 +23,7 @@ rule corbraToken = parse
 | "in"      {IN}
 | "range"   {RANGE}
 | '.'       {DOT}
-| '*'       { DREFER }
-| '*'       {DREFER}
+| '*'       { DREF }
 | '+'       { PLUS }
 | '-'       { MINUS }
 | "/"      { DIVIDE }
@@ -34,8 +33,8 @@ rule corbraToken = parse
 | "!="      { NEQ }
 | "<"      { LT }
 | '>'       { GT } 
-| ">="      { LTEQ }
-| "<="      {RTEQ}
+| ">="      { LEQ }
+| "<="      { GEQ }
 | "**"      { EXP }
 | "+="      { PLUSEQ }
 | "-="      { MINUSEQ }
@@ -47,7 +46,7 @@ rule corbraToken = parse
 | ']'       { RBRACK }
 | '('       { LPAREN }
 | ')'       { RPAREN }
-| "="       {ASSIGN }
+| "="       { ASN }
 | ','       { COMMA }
 | "&&"      { AND }
 | "break"   { BREAK }
@@ -62,7 +61,7 @@ rule corbraToken = parse
 | "tuple"   {TUPLE}
 | "list"    { LIST }
 | "string"     { STRING }
-| "&"       {REF}
+| "&"       {ADDRESS_OF}
 | "type"    {TYPE}
 | "for"     { FOR }
 | "while"   { WHILE }
@@ -76,14 +75,16 @@ rule corbraToken = parse
 | "free"    { FREE }
 | "try"     { TRY }
 | "catch"   { CATCH }
-| "->"     { RVAL }
+| "->"     { ARROW }
+|"makeManual" { MAKEMANUAL }
+| "release"   { RELEASE }
 | "virtual" {VIRTUAL}
 | "except"  { EXCEPT }
 | "true"    { BLIT(true) }
 | "false"   { BLIT(false) }
 | digit+ as lem {Literal (int_of_string lem)}
 | float as fl {Float_Lit (float_of_string fl)}
-| letter (letter | digit | '_')* as id  {Variable (id)} (*capturing the value of ID*)
+| letter (letter | digit | '_')* as id  {VERIABLE (id)} (*capturing the value of ID*)
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 |  eof  { EOF }
 | string as str {String_Lit (string_of_format str)}

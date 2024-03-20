@@ -17,13 +17,14 @@ Listaccess of expr * expr
 | Virtual_fun of bind * bind list
 | Binop of expr * binop * expr
 | Memory_manage of memory * expr
+| Import of expr
 
 type binop=
-| Eq | NEq | Lt | Gt | Plus | Minus| Times | Divde |Exp | Lteq| Rteq| Or | And
+| Eq | Neq | Lt | Gt | Plus | Minus| Times | Divde |Exp | Lteq| Rteq| Or | And | Mod
 type elif_block = elif of expr * stmt
 type memory = New | Delete | Free | Alloc | Dref
 type stmt = 
-Expr of expr 
+Expr of expr * expr
 | Elif of elif_block list
 | Function of bind * bind list * stmt
 | Block of stmt list
@@ -32,9 +33,14 @@ Expr of expr
 | For of bind * expr *stmt 
 | Range of bind * expr * stmt
 | If of expr * stmt * stmt
-| IfElif expr * stmt * stmt * stmt
+| IfElif of expr * stmt * stmt * stmt
 |Break
 | Continue
+|Return of expr
+| Import of expr
+| Public of stmt
+| Private of stmt
+
 
 
 type program ={
