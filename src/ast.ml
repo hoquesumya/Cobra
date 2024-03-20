@@ -1,6 +1,6 @@
 
 
-type typ= Int | Bool | Float | String | Null | Dynamic |Tuple | List
+type typ= Int | Bool | Float | String | Null | Dynamic |Tuple | List | None
 (** for x:int *)
 type bind = Bind of string *typ
 type expr=
@@ -14,7 +14,6 @@ Listaccess of expr * expr
 | Assign of expr * expr
 | Func_call of expr * expr list
 | Class_Method of expr * expr * expr list
-| Virtual_fun of bind * bind list
 | Binop of expr * binop * expr
 | Memory_manage of memory * expr
 | Import of expr
@@ -26,10 +25,12 @@ type memory = New | Delete | Free | Alloc | Dref
 type stmt = 
 Expr of expr * expr
 | Elif of elif_block list
+| Assign of expr list * expr
 | Function of bind * bind list * stmt
 | Block of stmt list
 | Class of string * bind list * stmt 
 | Virtual_Class of string * stmt
+| Virtual_fun of bind * bind list
 | For of bind * expr *stmt 
 | Range of bind * expr * stmt
 | If of expr * stmt * stmt

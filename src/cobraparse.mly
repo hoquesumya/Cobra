@@ -96,21 +96,21 @@ class_stmt:
 
 (*to do *)
 func_stmt:
-  | DEF VARIABLE LPAREN  list_parameter_list RPAREN COLON EOL stmt_block_list { Func(Bind($2, Dyn), $4, $8) }
-  | DEF VARIABLE LPAREN  list_parameter_list RPAREN ARROW typ COLON EOL stmt_block_list { Func(Bind($2, $7), $4, $10) }
+  | DEF VARIABLE LPAREN  list_parameter_list RPAREN COLON EOL stmt_block_list { Function(Bind($2, Dynamic), $4, $8) }
+  | DEF VARIABLE LPAREN  list_parameter_list RPAREN ARROW typ COLON EOL stmt_block_list { Function(Bind($2, $7), $4, $10) }
   | VIRTUAL DEF VARIABLE LPAREN  list_parameter_list RPAREN {Virtual_fun(Bind($3,Dynamic),$5)}
   
 
 complex_assignments:
-  | formal_asn_list ASN expr_rule { Asn(List.rev $1, $3) }
-  | lvalue PLUSEQ expr_rule{ Asn([$1], Binop($1, Add, $3)) }
-  | lvalue MINUSEQ expr_rule { Asn([$1], Binop($1, Sub, $3)) }
-  | lvalue TIMESEQ expr_rule { Asn([$1], Binop($1, Mul, $3)) }
-  | lvalue DIVIDEEQ expr_rule { Asn([$1], Binop($1, Div, $3)) }
+  | all_assign_list ASN expr_rule { Assign(List.rev $1, $3) }
+  | lvalue PLUSEQ expr_rule{ Assign([$1], Binop($1, Plus , $3)) }
+  | lvalue MINUSEQ expr_rule { Assign([$1], Binop($1, Minus, $3)) }
+  | lvalue TIMESEQ expr_rule { Assign([$1], Binop($1, Times, $3)) }
+  | lvalue DIVIDEEQ expr_rule { Assign([$1], Binop($1, Divide, $3)) }
 
-formal_asn_list:
+all_assign_list:
   | lvalue { [$1] }
-  | formal_asn_list ASN lvalue { $3 :: $1 }
+  | all_assign_list ASN lvalue { $3 :: $1 }
 
 lvalue:
   | bind_variable { Var $1 }
@@ -157,6 +157,7 @@ typ:
   | STRING { String }
   | TUPLE {Tuple}
   | LIST {List}
+  | NONE {None}
 
 
 expr_rule:
