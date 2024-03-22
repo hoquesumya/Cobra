@@ -5,7 +5,7 @@ type token =
   | IF
   | ELSE
   | ELIF
-  | NONELSE
+  | NOELSE
   | NOT
   | AND
   | OR
@@ -65,27 +65,27 @@ type token =
   | DOT
   | DEREF
   | String_Lit of (
-# 10 "sample.mly"
+# 11 "sample.mly"
         string
 # 71 "sample.mli"
 )
   | Variable of (
-# 11 "sample.mly"
+# 12 "sample.mly"
         string
 # 76 "sample.mli"
 )
   | Literal of (
-# 12 "sample.mly"
+# 13 "sample.mly"
         int
 # 81 "sample.mli"
 )
   | Float_Lit of (
-# 13 "sample.mly"
+# 14 "sample.mly"
         float
 # 86 "sample.mli"
 )
   | BLIT of (
-# 14 "sample.mly"
+# 15 "sample.mly"
         bool
 # 91 "sample.mli"
 )

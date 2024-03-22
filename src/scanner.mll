@@ -78,6 +78,8 @@ rule corbraToken = parse
 | "->"     { ARROW }
 |"makeManual" { MAKEMANUAL }
 | "release"   { RELEASE }
+| "retain"    {RETAIN}
+|"type"       {TYPE}
 | "virtual" {VIRTUAL}
 | "except"  { EXCEPT }
 | "true"    { BLIT(true) }

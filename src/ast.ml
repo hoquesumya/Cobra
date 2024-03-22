@@ -18,6 +18,9 @@ Listaccess of expr * expr
 | Memory_manage of memory * expr
 | Import of expr
 
+
+type MemoryMap = 
+| New | Delete | Dref | Address | Retain
 type binop=
 | Eq | Neq | Lt | Gt | Plus | Minus| Times | Divde |Exp | Lteq| Rteq| Or | And | Mod
 type elif_block = elif of expr * stmt
@@ -41,6 +44,8 @@ Expr of expr * expr
 | Import of expr
 | Public of stmt
 | Private of stmt
+| Memory_REF of 
+
 
 
 
