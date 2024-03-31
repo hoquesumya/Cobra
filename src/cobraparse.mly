@@ -5,21 +5,21 @@
 
 %token NOELSE ASN EQ NEQ LT GT LEQ GEQ PLUS MINUS TIMES DIVIDE PLUSEQ MINUSEQ TIMESEQ DIVIDEEQ EXPEQ
 %token EXP AND OR ARROW CONTINUE BREAK
-%token TAB SPACE COLON EOF EOL IF ELSE ELIF FOR WHILE COMMA DEF IN  RETURN NONE DOT
-%token BOOL INT FLOAT STRING TUPLE LIST MODULUS
+%token TAB SPACE COLON EOF EOL IF ELSE ELIF FOR WHILE COMMA DEF IN  RETURN NONE DOT UNION
+%token BOOL INT FLOAT STRING TUPLE LIST MODULUS  SEP
 %token CLASS IMPORT RANGE DELETE TYPE
 %token INDENT DEDENT NEW DREF PUBLIC PRIVATE ADDRESS_OF
 %token LPAREN RPAREN
 %token LBRACK RBRACK VIRTUAL NULL MAKEMANUAL RELEASE
 %token LBRACE RBRACE RETAIN
 %token <string> VARIABLE
+%token <string> ID
 
 %token <float> Float_Lit
 %token <string> String_Lit 
 %token <int> Literal
 %token <bool> BLIT
 
-%left EOL
 %nonassoc NOELSE /* handles shift-reduce error for else and noelse clauses */
 %nonassoc ELSE
 %right ASN PLUSEQ MINUSEQ DIVIDEEQ TIMESEQ
@@ -39,8 +39,6 @@
 %nonassoc LPAREN LBRACK LBRACE
 %nonassoc RPAREN RBRACK RBRACE
 
-
-
 %start program
 %type <Ast.stmt> program
 
@@ -48,163 +46,80 @@
 program: 
 |stmt_list EOF { {body=$1} }
 
-
 stmt_list:
   | { [] }
   | stmt stmt_list { $1 :: $2 }
-
-
-
+  
 stmt:
-  | expr_rule EOL expr_rule{ Expr ($1,$3) }
-  | compound_stmts {$1}
-  (*| RETURN expr_rule EOL { Return $2 }*)
-  | IMPORT expr_rule EOL { Import($2)}
+  | expr EOL { Expr $1 }
   | MAKEMANUAL VARIABLE {Memory_REF(Makemanual, (Bind($2,Dynamic)))}
   | RELEASE VARIABLE {Memory_REF(Makemanual, (Bind($2,Dynamic)))}
-  | TYPE VARIABLE ASN typ_list {$2,$4}
+  | DELETE VARIABLE {Memory_manage(Delete,$2)}
+  | DELETE LBRACK RBRACK VARIABLE {Memory_manage(Delete,$4)}
+  | if_stmt {$1}
+  | while_rule {$1}
 
 
-while_stmt_list:
- {[]}
- | while_stmt while_stmt_list {$1::$2}
+stmt_block_list:
+ INDENT stmt_list  DEDENT {$2}
 
-stmt_block_list: 
-  | INDENT stmt_list DEDENT { Block($2) }
+
+(*starting of the grammer rule of while block*)
+while_rule:
+ WHILE expr COLON EOL while_stmt_block_list {While($2, $5) }
+
 
 while_stmt_block_list: 
   | INDENT while_stmt_list DEDENT { Block($2) }
 
+ while_stmt_list:
+ {[]}
+ | while_stmt while_stmt_list {$1::$2}
+
 while_stmt:
-  | expr_rule EOL expr_rule{ Expr ($1,$3) }
+  | expr EOL { Expr $1 }
   | if_stmt_while {$1}
   | while_rule {$1}
-  (*| RETURN expr_rule EOL { Return $2 }*)
   | MAKEMANUAL VARIABLE {Memory_REF(Makemanual, (Bind($2,Dynamic)))}
   | RELEASE VARIABLE {Memory_REF(Makemanual, (Bind($2,Dynamic)))}
-  | TYPE VARIABLE ASN typ_list {$2,$4}
-  |BREAK {Break}
+  | BREAK {Break}
   | CONTINUE{Continue}
 
 if_stmt_while:
-| IF expr_rule COLON EOL  while_stmt_block_list %prec NOELSE {{if ($2,$5,$Block([])])} }
-| IF expr_rule COLON EOL while_stmt_block_list elif_block_list_while ELSE COLON EOL while_stmt_block_list {ifElif($2,$5,Elif($6),$10)}
+| IF expr COLON EOL while_stmt_block_list %prec NOELSE {{if ($2,$5,$Block([])])} }
+| IF expr COLON EOL while_stmt_block_list elif_block_list_while ELSE COLON EOL while_stmt_block_list {ifElif($2,$5,Elif($6),$10)}
 
  elif_block_list_while:
  | (*nothing*) {[]}
  | elif_block_while elif_block_list_while {$1::$2}
 
  elif_block_while:
- | ELIF expr_rule COLON EOL while_stmt_block_list {elif($2,$5)}
+ | ELIF expr COLON EOL while_stmt_block_list {elif($2,$5)}
+
+
+(*end of the while rule*)
+
+(*starting of regular if stmt *)
+
+if_stmt:
+  IF expr COLON EOL stmt_block_list %prec NOELSE {{if ($2,$5,$Block([])])} }
+  | IF expr COLON EOL stmt_block_list elif_block_list ELSE COLON EOL stmt_block_list {ifElif($2,$5,Elif($6),$10)}
 
 
 
-
-
- typ_list:
- | typ {[$1]}
- | typ typ_list {[$1::$2]}
-
- elif_block_list:
+elif_block_list:
  | (*nothing*) {[]}
  | elif_block elif_block_list {$1::$2}
 
  elif_block:
- | ELIF expr_rule COLON EOL stmt_block_list {elif($2,$5)}
-
-  compound_stmts:
-  (*| for_stmt {$1}*)
-  | class_stmt {$1}
-  |func_stmt {$1}
-  | while_rule {$1}
-  | if_stmt {$1}
-
-if_stmt:
-  | IF expr_rule COLON EOL stmt_block_list %prec NOELSE {{if ($2,$5,$Block([])])} }
-  | IF expr_rule COLON EOL stmt_block_list elif_block_list ELSE COLON EOL stmt_block_list {ifElif($2,$5,Elif($6),$10)}
-
-while_rule:
- WHILE expr_rule COLON EOL while_stmt_block_list {While($2, $5) }
-
- (*while_element:
- | stmt_list {$1}
- | BREAK {Break}
- | CONTINUE{Continue}*)
-
-(*for_stmt:
- | FOR bind_variable IN expr_rule COLON EOL stmt_block_list {For($2,$4,$7)}
- | FOR bind_variable IN RANGE LPAREN expr_rule RPAREN COLON EOL stmt_block_list {Range ($2, $6, $10)}*)
-
-class_stmt:
-  | CLASS VARIABLE LPAREN list_parameter_list RPAREN COLON EOL stmt_block_list {Class ($2,$4,$8) }
-  | VIRTUAL CLASS VARIABLE COLON EOL stmt_block_list { Virtual_Class($3,$6) }
-  | PUBLIC COLON EOL stmt_block_list {Public ($4)}
-  | PRIVATE COLON EOL stmt_block_list {Private ($4)}
-
-(*to do *)
-func_stmt:
-  | DEF VARIABLE LPAREN  list_parameter_list RPAREN COLON EOL INDENT func_element DEDENT { Function(Bind($2, Dynamic), $4, $9) }
-  | DEF VARIABLE LPAREN  list_parameter_list RPAREN ARROW typ COLON EOL INDENT func_element DEDENT { Function(Bind($2, $7), $4, $11) }
-  | VIRTUAL DEF VARIABLE LPAREN  list_parameter_list RPAREN {Virtual_fun(Bind($3,Dynamic),$5)}
-
-func_element:
-  | stmt_list {$1}
-  | RETURN expr_rule {$2}
-  
-
-/*complex_assignments:
- (* | all_assign_list ASN expr_rule { Assign(List.rev $1, $3) }*)
-  | lvalue PLUSEQ expr_rule{ Assign([$1], Binop($1, Plus , $3)) }
-  | lvalue MINUSEQ expr_rule { Assign([$1], Binop($1, Minus, $3)) }
-  | lvalue TIMESEQ expr_rule { Assign([$1], Binop($1, Times, $3)) }
-  | lvalue DIVIDEEQ expr_rule { Assign([$1], Binop($1, Divide, $3)) }
+ | ELIF expr COLON EOL stmt_block_list {elif($2,$5)}
 
 
-lvalue:
-  | bind_variable { Var $1 }
-  | list_access { $1 }
-*/
- (*dynamic binding*)
+(*end of the regular if stmt; can be used inside the function not a loop*)
 
-bind_variable:
-  | VARIABLE { Bind($1, Dyn) }
-  | VARIABLE COLON typ { Bind($1, $3) }
-  | VARIABLE COLON typ LBRACK RBRACK { Bind($1, $3)} (*Cstyle array*)
-
-
-list_access:
-  | expr_rule LBRACK expr_rule RBRACK { ListAccess($1, $3) }
-
-
-
- list_parameter_list:
-  | { [] }
-  | opt_list {  $1 }
-
-
-opt_list: 
-  | bind_variable { [$1] }
-  | bind_variable COMMA opt_list { $1 :: $3 }
-
-
- list_argument:
-|(*nothing*) {[]}
-| list_of_arg {$1}
-
-
-list_of_arg:
- | expr_rule {[$1]}
- | expr_rule COMMA list_of_arg{$1::$3}
-
-
-  array_element:
-|(*nothing*) {[]}
-| array_arg {$1}
-
-
-array_arg:
- | expr_rule {[$1]}
- | expr_rule COMMA array_arg{$1::$3}
+ typ_list:
+ | typ {[$1]}
+ | typ UNION typ_list {[$1::$3]}
 
 
 typ:
@@ -216,49 +131,88 @@ typ:
   | LIST {List}
   | NONE {None}
 
+all_dot_ops:
+VARIABLE DOT VARIABLE {($1,$3)}
+| all_dot_ops DOT VARIABLE {($1,$3)}
 
-expr_rule:
-| list_access { $1 }
-| VARIABLE {{Bind($1,Dynamic)} }
-| expr_rule LPAREN list_argument RPAREN { Func_call($1,$3)}
-| expr_rule DOT VARIABLE LPAREN list_argument RPAREN {Class_Method ($1, $3, $5)}
-| LPAREN expr_rule RPAREN { $2 }
-| all_lit {$1}
-| LBRACK array_element RBRACK { List($2) }  (*list*)(*just rename it*)
-(*| LPAREN list_argument RBRACK { Tuple($2)} (*Tuple*)*)
-(*|typ VARIABLE {$1,$2}* shift reduce conflict*)
+  array_element:
+|(*nothing*) {[]}
+| array_arg {$1}
+
+all_Dref:
+ VARIABLE {Bind($1,Dynamic)}
+| all_dot_ops {$1}
+| LPAREN all_Dref RPAREN {$2}
+
+
+all_new_op:
+typ {$1}
+| typ LBRACK Literal RBRACK {($1,Literal($3))}
+| typ LBRACK VARIABLE RBRACK {($1,$3)}
+| VARIABLE {$1}
+| VARIABLE LBRACK Literal RBRACK  {($1,Literal($3))}
+| VARIABLE LBRACK VARIABLE RBRACK  {($1,$3)}
+
+array_arg:
+ | expr {[$1]}
+ | expr COMMA array_arg{$1::$3}
+
+
+expr:
+| VARIABLE {Bind($1,Dynamic)} 
+| VARIABLE COLON typ {Bind($1,$3)} 
 | all_simple_assignment {$1}
-| DEREF expr_rule {Memory_manage (Deref, $2)} 
-| NEW expr_rule {Memory_manage (New, $2)}
-| DELETE expr_rule {Memory_manage(Delete,$2)}
-| DELETE LBRACE RBRACK VARIABLE {$4}
-| ADDRESS_OF expr_rule {Memory_manage (Address, $2)}
-| RETAIN expr_rule {Memory_manage (Retain, $2)}
-(*| complex_assignments {$1}*)
-| expr_rule ASN expr_rule {$1,$3}
+| LPAREN expr RPAREN {$2}
+| VARIABLE LPAREN args_opt RPAREN { Func_call ($1, $3)  }
+| VARIABLE DOT VARIABLE LPAREN args_opt RPAREN {Class_Method ($1, $3)}
+| all_dot_ops {$1}
+| DEREF  all_Dref {Memory_manage (Deref, $2)} 
+| NEW all_new_op {Memory_manage (New, $2)}
+| ADDRESS_OF expr {Memory_manage (Address, $2)}
 
-all_simple_assignment:
-| expr_rule EQ expr_rule { Binop($1, Eq, $3) }
-| expr_rule NEQ expr_rule { Binop($1, Neq, $3) }
-| expr_rule LT expr_rule { Binop($1, Less, $3) }
-| expr_rule GT expr_rule { Binop($1, Greater, $3) }
-| expr_rule LEQ expr_rule { Binop($1, Leq, $3) }
-| expr_rule GEQ expr_rule { Binop($1, Geq, $3) }
-| expr_rule AND expr_rule { Binop($1, And, $3) }
-| expr_rule OR expr_rule { Binop($1, Or, $3) }
-| expr_rule PLUS expr_rule { Binop($1, Add, $3) }
-| expr_rule MINUS expr_rule { Binop($1, Sub, $3) }
-| expr_rule TIMES expr_rule { Binop($1, Mul, $3) }
-| expr_rule DIVIDE expr_rule { Binop($1, Div, $3) }
-| expr_rule EXP expr_rule { Binop($1, Exp, $3) }
-| expr_rule MODULUS expr_rule  { Binop($1, Mod, $3) }
+| VARIABLE ASN expr {Asn(Bind($1,Dynamic),$3)}
+| VARIABLE COLON typ ASN expr {Asn(Bind($1,$3),$5)} (*has conflict with if expr COLON*)
+| DREF all_Dref ASN expr {Asn_Dref(Memory_manage(Deref, $2),$4)}
+| TYPE VARIABLE ASN typ_list {Custom_types($2,$4)}
+| typ VARIABLE LBRACK VARIABLE RBRACK ASN expr {Array_assign($1,$2,$4,$7)}
 
-
-all_lit:
+| RETAIN expr {Memory_manage (Retain, $2)}
 | Float_Lit {Float_literal ($1)}
+| LBRACK array_element RBRACK { Array($2) } 
 | BLIT {Bool $1}
 | Literal {Literal($1)} 
 | String_Lit  { Stirng_literal ($1)} 
 
-;;
+
+
+
+all_simple_assignment:
+| expr EQ expr { Binop($1, Eq, $3) }
+| expr NEQ expr { Binop($1, Neq, $3) }
+| expr LT expr{ Binop($1, Less, $3) }
+| expr GT expr { Binop($1, Greater, $3) }
+| expr LEQ expr { Binop($1, Leq, $3) }
+| expr GEQ expr { Binop($1, Geq, $3) }
+| expr AND expr { Binop($1, And, $3) }
+| expr OR expr { Binop($1, Or, $3) }
+| expr PLUS expr { Binop($1, Add, $3) }
+| expr MINUS expr { Binop($1, Sub, $3) }
+| expr TIMES expr { Binop($1, Mul, $3) }
+| expr DIVIDE expr { Binop($1, Div, $3) }
+| expr EXP expr { Binop($1, Exp, $3) }
+| expr MODULUS expr  { Binop($1, Mod, $3) }
+
+
+
+
+
+
+args_opt:
+{[]}
+| args { $1 }
+
+args:
+expr  { [$1] }
+  | expr COMMA args { $1::$3 }
+  
 

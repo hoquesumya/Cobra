@@ -11,10 +11,11 @@ let string = ('"'[^'"''\\']*('\\'_[^'"''\\']*)*'"')
 rule corbraToken = parse
     [' ' '\r'] { token lexbuf } 
 | '#'         { comment lexbuf }
-| '\n'      { EOL}
+| '\n'+     { EOL}
 | '\t'      { TAB }
 | ':'       { Colon }
 | "if"      { IF }
+| "|"       {UNION}
 | "else"   { ELSE }
 | "elif"    { ELIF }
 | "not"     { NOT }

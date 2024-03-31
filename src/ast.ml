@@ -16,6 +16,7 @@ Listaccess of expr * expr
 | Class_Method of expr * expr * expr list
 | Binop of expr * binop * expr
 | Memory_manage of memory * expr
+|Assign of bind * expr
 | Import of expr
 
 
@@ -28,7 +29,6 @@ type memory = New | Delete | Free | Alloc | Dref
 type stmt = 
 Expr of expr * expr
 | Elif of elif_block list
-| Assign of expr list * expr
 | Function of bind * bind list * stmt
 | Block of stmt list
 | Class of string * bind list * stmt 
