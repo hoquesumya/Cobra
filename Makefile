@@ -1,12 +1,8 @@
 all : calc.out
 
 ##############################
-#
-# HW 2: Question 1
-#
 # Compilation: 
 # Option 1: Simply type "make" to compile the calculator (recommended, auto-test included)
-# Option 2: "ocamlbuild calc.native" will also build the calculator
 
 # For testing, you can run the binary executable and test it with
 # standard input via terminal.
