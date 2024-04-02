@@ -1,0 +1,9 @@
+
+def __main__():
+    a: int = 5
+    b: int = 6
+    c: int = a + b
+    
+    print(c)
+
+
