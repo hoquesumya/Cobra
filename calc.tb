@@ -1,1 +1,1 @@
-foo = 1; bar = baz = 1; foo + bar + baz
+foo = 4; bar = baz = 6; foo*bar/(foo*2)+3
