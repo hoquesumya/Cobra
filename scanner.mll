@@ -14,6 +14,7 @@ rule tokenize = parse
 | "false" { FALSE(false) }
 | "and" { AND }
 | "or" { OR }
+| "not" { NOT }
 | ['0'-'9']+ as lit { LITERAL(int_of_string lit) }
 | ['a'-'z' 'A'-'Z']+ as id { VARIABLE(id) }
 | eof { EOF }

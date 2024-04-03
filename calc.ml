@@ -42,6 +42,13 @@ let rec eval expr =
       let (b1, env1) = eval_bool e1 env in
       let (b2, env2) = eval_bool e2 env1 in
       (BoolValue (b1 || b2), env2)
+    | Not (e1) ->
+      let eval_bool e env = match eval_e e env with
+      | (BoolValue b, env') -> (b, env')
+      | _ -> failwith "Runtime type error: expected boolean operands"
+      in
+      let (b1, env1) = eval_bool e1 env in
+      (BoolValue (not b1), env1)
   in
   let (res, _) = eval_e expr StringMap.empty in
   res

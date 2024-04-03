@@ -13,3 +13,4 @@ type expr =
   | Var of string
   | And of expr * expr
   | Or of expr * expr
+  | Not of expr
