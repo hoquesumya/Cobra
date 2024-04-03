@@ -1,7 +1,7 @@
 { open Parser }
 
 rule tokenize = parse
-  [' ' '\t' '\r' '\n'] { tokenize lexbuf }
+  [' '] { tokenize lexbuf }
 | '(' { LPAREN }
 | ')' { RPAREN }
 | '+' { PLUS }
@@ -9,7 +9,7 @@ rule tokenize = parse
 | '*' { TIMES }
 | '/' { DIVIDE }
 | '=' { ASN }
-| ';' { SEQ }
+| '\n' { SEQ }
 | "true" { TRUE(true) }
 | "false" { FALSE(false) }
 | "and" { AND }

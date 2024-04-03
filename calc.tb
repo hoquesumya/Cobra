@@ -1,1 +1,3 @@
-foo = true; bar = false; foo and bar
+foo = true
+bar = false
+foo or bar
