@@ -1,7 +1,6 @@
 (*Ocamllex scanner for Cobra *)
 {
     open Cobraparse
-    exception Eof
 }
 let digit = ['0'-'9']
 let float = digit+'.'digit*
@@ -87,7 +86,7 @@ rule corbraToken = parse
 | "false"   { BLIT(false) }
 | digit+ as lem {Literal (int_of_string lem)}
 | float as fl {Float_Lit (float_of_string fl)}
-| letter (letter | digit | '_')* as id  {VERIABLE (id)} (*capturing the value of ID*)
+| letter (letter | digit | '_')* as id  {VARIABLE (id)} (*capturing the value of ID*)
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 |  eof  { EOF }
 | string as str {String_Lit (string_of_format str)}
