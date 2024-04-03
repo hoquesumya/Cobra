@@ -6,7 +6,13 @@ This is the main source code repository for Cobra. It contains the compiler, sta
 
 ## Quick Start
 
-TODO
+The following will clean output files along with compiling the executable to run against `calc.tb` which can contain any valid input conforming to the Cobra Spec.
+
+```
+make clean && make
+```
+
+The output generated (if successful) will be generated in `calc.out`.
 
 ## Language Reference
 
