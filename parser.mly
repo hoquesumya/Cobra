@@ -2,12 +2,15 @@
 
 %token LPAREN RPAREN
 %token PLUS MINUS TIMES DIVIDE ASN SEQ EOF
+%token AND OR
 %token <int> LITERAL
+%token <bool> TRUE FALSE
 %token <string> VARIABLE
 
 %right ASN
 %left PLUS MINUS
 %left TIMES DIVIDE
+%left AND OR
 
 %start expr_root
 %type <Ast.expr> expr_root
@@ -25,5 +28,9 @@ expr:
 | expr TIMES expr { Binop($1, Mul, $3) }
 | expr DIVIDE expr { Binop($1, Div, $3) }
 | LITERAL { Lit($1) }
+| TRUE { BoolLit(true) }
+| FALSE { BoolLit(false) }
+| expr AND expr { And($1, $3) }
+| expr OR expr { Or($1, $3) }
 | VARIABLE { Var($1) }
 | LPAREN expr RPAREN { $2 }
