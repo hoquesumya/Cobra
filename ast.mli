@@ -3,6 +3,7 @@ type operator = Add | Sub | Mul | Div
 type value =
   | IntValue of int
   | BoolValue of bool
+  | VoidValue
 
 type expr =
     Binop of expr * operator * expr
@@ -16,3 +17,6 @@ type expr =
   | Not of expr
   | Eq of expr * expr
   | Neq of expr * expr
+  | FunDef of string * expr list
+  | SeqList of expr list
+  | FunCall of string
