@@ -1,1 +1,1 @@
-foo = 4; bar = baz = 6; foo*bar/(foo*2)+3
+foo = true; bar = false; foo and bar
