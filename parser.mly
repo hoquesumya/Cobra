@@ -4,6 +4,7 @@
 %token PLUS MINUS TIMES DIVIDE ASN SEQ EOF
 %token AND OR NOT EQ NEQ
 %token DEF COLON RETURN
+%token INDENT DEDENT
 %token <int> LITERAL
 %token <bool> TRUE FALSE
 %token <string> IDENTIFIER
@@ -38,7 +39,7 @@ expr:
 | NOT expr { Not($2) }
 | IDENTIFIER { Var($1) }
 | LPAREN expr RPAREN { $2 }
-| DEF IDENTIFIER LPAREN RPAREN COLON exprs RETURN expr { FunDef($2, $6) }
+| DEF IDENTIFIER LPAREN RPAREN COLON INDENT exprs DEDENT RETURN expr { FunDef($2, $7) }
 | IDENTIFIER LPAREN RPAREN { FunCall($1) }
 
 exprs:
