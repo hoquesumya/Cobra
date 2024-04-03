@@ -1,3 +1,4 @@
 foo = true
 bar = false
-foo and not bar
+baz = false
+foo == (bar == baz)

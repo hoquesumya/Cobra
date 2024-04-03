@@ -2,7 +2,7 @@
 
 %token LPAREN RPAREN
 %token PLUS MINUS TIMES DIVIDE ASN SEQ EOF
-%token AND OR NOT
+%token AND OR NOT EQ NEQ
 %token <int> LITERAL
 %token <bool> TRUE FALSE
 %token <string> VARIABLE
@@ -30,6 +30,8 @@ expr:
 | LITERAL { Lit($1) }
 | TRUE { BoolLit(true) }
 | FALSE { BoolLit(false) }
+| expr EQ expr { Eq($1, $3) }
+| expr NEQ expr { Neq($1, $3) }
 | expr AND expr { And($1, $3) }
 | expr OR expr { Or($1, $3) }
 | NOT expr { Not($2) }

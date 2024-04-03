@@ -49,6 +49,20 @@ let rec eval expr =
       in
       let (b1, env1) = eval_bool e1 env in
       (BoolValue (not b1), env1)
+    | Eq (e1, e2) ->
+      let (v1, env1) = eval_e e1 env in
+      let (v2, env2) = eval_e e2 env1 in
+      (match (v1, v2) with
+        | (IntValue n1, IntValue n2) -> (BoolValue (n1 = n2), env2)
+        | (BoolValue b1, BoolValue b2) -> (BoolValue (b1 = b2), env2)
+        | _ -> failwith "Runtime type error: incompatible operand types for equality check")
+    | Neq (e1, e2) ->
+      let (v1, env1) = eval_e e1 env in
+      let (v2, env2) = eval_e e2 env1 in
+      (match (v1, v2) with
+        | (IntValue n1, IntValue n2) -> (BoolValue (n1 <> n2), env2)
+        | (BoolValue b1, BoolValue b2) -> (BoolValue (b1 <> b2), env2)
+        | _ -> failwith "Runtime type error: incompatible operand types for inequality check")
   in
   let (res, _) = eval_e expr StringMap.empty in
   res
