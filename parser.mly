@@ -5,7 +5,7 @@
 %token AND OR NOT EQ NEQ
 %token <int> LITERAL
 %token <bool> TRUE FALSE
-%token <string> VARIABLE
+%token <string> IDENTIFIER
 
 %right ASN
 %left PLUS MINUS
@@ -22,7 +22,7 @@ expr_root:
 | expr { $1 }
 
 expr:
-  VARIABLE ASN expr { Asn($1, $3) }
+  IDENTIFIER ASN expr { Asn($1, $3) }
 | expr PLUS expr { Binop($1, Add, $3) }
 | expr MINUS expr { Binop($1, Sub, $3) }
 | expr TIMES expr { Binop($1, Mul, $3) }
@@ -35,5 +35,5 @@ expr:
 | expr AND expr { And($1, $3) }
 | expr OR expr { Or($1, $3) }
 | NOT expr { Not($2) }
-| VARIABLE { Var($1) }
+| IDENTIFIER { Var($1) }
 | LPAREN expr RPAREN { $2 }
