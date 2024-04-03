@@ -1,1 +1,2 @@
-foo = true; bar = false; foo and bar
+def add(x, y) 
+  x + y;
