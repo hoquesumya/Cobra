@@ -13,3 +13,6 @@ type expr =
   | Var of string
   | And of expr * expr
   | Or of expr * expr
+  | Not of expr
+  | Eq of expr * expr
+  | Neq of expr * expr

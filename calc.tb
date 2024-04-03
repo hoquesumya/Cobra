@@ -1,1 +1,4 @@
-foo = true; bar = false; foo and bar
+foo = true
+bar = false
+baz = false
+foo == (bar == baz)
