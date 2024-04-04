@@ -6,7 +6,7 @@ This is the main source code repository for Cobra. It contains the compiler, sta
 
 ## Quick Start
 
-TODO
+To test our current implementation, modify calc.tb with your desired source code. Then run "make" in the root directory.
 
 ## Language Reference
 
