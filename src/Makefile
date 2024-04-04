@@ -27,8 +27,8 @@ scanner.ml : scanner.mll
 parser.ml parser.mli : parser.mly
 	ocamlyacc $^
 
-calc.out : calc calc.tb
-	./calc < calc.tb > calc.out
+calc.out : calc ../test/cobra.🐍
+	./calc < ../test/cobra.🐍 > calc.out
 
 # Depedencies from ocamldep
 calc.cmo : scanner.cmo parser.cmi ast.cmi

@@ -4,10 +4,9 @@ Cobra is a language that we (Baily Troyer, Sumya Hoque, Vidur Gupta , Vineeth Va
 
 Currently we have designed our language Cobra, as described in LRM.md. We have begun implementing the compiler, and have designed the Scanner, AST, and Parser for some of the essential language features. Our current code can handle:
 
-- if statements
-- function definitions and calling
 - basic arithmetic
 - boolean logic
+- if statements (almost)
 
 We also decided to use the 🐍 (snake emoji) as our default file extension. 
 
@@ -19,7 +18,7 @@ Our remaining work involves completing feature implementation that Cobra offers 
 
 - memory manipulation
 - arrays
-- class definitions
+- function/class definitions
 - while loops
 - etc. (all features defined in the LRM)
 
@@ -34,11 +33,11 @@ This file defines the Abstract Syntax Tree (AST) providing a high-level represen
 parser.mly
 The parser defines the grammar of our language. It specifies how to parse the source code or tokens into an AST. Our current parser implements some of Cobra's final feature set, but not all.
 
-calc.ml
+cobra.ml
 This Ocaml file serves as the executable entry point of the compiler, showcasing the integration of various components of the compiler infrastructure. It uses Scanner.tokenize to break down the raw input into tokens, Parser.expr_root to construct the AST from the tokens, and computes the value of the AST with eval. The environment also tracks the variable states during evaluation. This code was based on the code from HW2.
 
-calc.tb
-This testbench file serves as a test input to pass through our pipeline. It can be modified before running 'make' and in the case of a successful compilation, the output will be saved to a file called calc.out.
+cobra.🐍
+This testbench file serves as a test input to pass through our pipeline. It can be modified before running 'make' and in the case of a successful compilation, the output will be saved to a file called cobra.out.
 
 Makefile
 The makefile cleans and runs all the necesarry compilation steps to run the files mentioned above. 

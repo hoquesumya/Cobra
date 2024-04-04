@@ -6,7 +6,7 @@ This is the main source code repository for Cobra. It contains the compiler, sta
 
 ## Quick Start
 
-To test our current implementation, modify calc.tb with your desired source code. Then run "make" in the root directory.
+To test our current implementation, modify cobra.🐍 with your desired source code. Then run "make" in the src directory.
 
 ## Language Reference
 
@@ -15,3 +15,6 @@ See [LRM.md](./LRM.md)
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## Authors
+Baily Troyer, Sumya Hoque, Vidur Gupta, Vineeth Vajipey
