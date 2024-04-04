@@ -9,6 +9,10 @@ Currently we have designed our language Cobra, as described in LRM.md. We have b
 - basic arithmetic
 - boolean logic
 
+We also decided to use the 🐍 (snake emoji) as our default file extension. 
+
+Note: we have completed the core features to allow most programs to be implemented in our language. Now we are focusing on additional features to make program design faster and easier. 
+
 # Remaining Work
 
 Our remaining work involves completing feature implementation that Cobra offers in the Scanning and Parsing stages, and also implementing IR Generation and Code Optimization. We plan on implementing these features before the end of the semester:
