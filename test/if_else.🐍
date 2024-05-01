@@ -1,6 +1,0 @@
-def __main__():  
-    a: int = 5
-    if a > 4:
-        print("Apples!")
-    else:
-        print("Bananas!")    
