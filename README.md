@@ -1,11 +1,38 @@
 # Cobra 🐍
 
-## Getting Started
+## Installing
 
 ```
+git clone https://github.com/hoquesumya/Cobra.git
+cd Cobra
 make
-./test < ./tests/full.🐍
 ```
+
+## Getting Started
+
+Locally:
+
+```
+./cobra < ./tests/full.🐍
+```
+
+In Docker:
+
+```
+docker build -t cobra .
+docker run -v $(pwd)/tests:/app/tests cobra
+```
+
+Interactively:
+
+```
+docker run -v $(pwd)/tests:/app/tests -it cobra /bin/bash
+./cobra < ./tests/full.🐍
+```
+
+## Contributing
+
+For more complete instructions on contributing to Cobra development, see the [Developer Guide](./CONTRIBUTING.md).
 
 ## Next Steps
 
