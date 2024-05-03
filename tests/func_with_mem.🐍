@@ -1,0 +1,28 @@
+def fibonacci_recursive(n):
+	if n <= 1:
+		return n
+	else:
+		return fibonacci_recursive(n-1) + fibonacci_recursive(n-2)
+	endif
+endef
+
+fibonacci_recursive(5)
+
+def fibonacci_iterative(n):
+	if n <= 1:
+		return n
+	endif
+	int a = 0
+	int c = 10
+	int count = 5
+	int * b = &c
+	a = *b
+	*b = (a+b) + 10
+	while count <= n:
+		a = (b+5) - 2
+		a = b + 5
+		count = count + 1
+	next
+
+	return b
+endef

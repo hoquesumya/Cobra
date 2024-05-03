@@ -8,18 +8,24 @@ type bop =
   | Greater
   | LessEq
   | GreaterEq
+  | Mul
 
 type typ =
   | Int
   | Bool
 
+type id_catg = Id of string | PointerID of string
+type mem_type = Dref | Address_of | Retain
 type expr =
   | Literal of int
   | BoolLit of bool
   | Var of string
   | Binop of expr * bop * expr
   | Assign of string * expr
+  | AssignVar of typ * id_catg * expr
   | Call of string * expr list
+  | Memory_handler of mem_type * expr
+  | AssignPointer of expr * expr
 
 type stmt =
   | Expr of expr
@@ -27,6 +33,8 @@ type stmt =
   | While of expr * stmt list
   | Return of expr
   | Function of string * string list * stmt list
+  | Break 
+  | Continue
 
 type program = {
   locals: (typ * string) list;

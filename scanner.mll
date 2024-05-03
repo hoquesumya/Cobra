@@ -1,4 +1,9 @@
-{ open Parser }
+{ open Parser 
+
+let typ = ref false
+
+
+}
 
 rule token = parse
   | [' ' '\n' '\t' ]* { token lexbuf }
@@ -14,10 +19,21 @@ rule token = parse
   | "next" { NEXT }
 
   | "return" { RETURN }
-  | "int" { INT }
-  | "bool" { BOOL }
+  | "int" { typ := true; INT }
+  | "bool" {typ := true; BOOL }
   | "true" { BLIT(true) }
   | "false" { BLIT(false) }
+  | "*" { 
+          print_endline (string_of_bool !typ);
+          if !typ then (
+            typ :=false;
+            POINTER
+          )
+          else 
+          (
+            DEREF
+          )
+        }
 
   | ['0'-'9']+ as l { LITERAL(int_of_string l) }
   | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as id { ID(id) }
@@ -35,6 +51,11 @@ rule token = parse
   | '(' { LPAREN }
   | ')' { RPAREN }
   | ',' { COMMA }
+  | '&' {ADDRESS_OF}
+  | "retain" {RETAIN}
+  | "break" {BREAK}
+  | "continue" {CONTINUE}
+
 
   | eof {EOF }
   | _ as c { 
