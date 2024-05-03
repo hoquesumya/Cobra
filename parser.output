@@ -2,20 +2,19 @@
 
    1  program_rule : statements EOF
 
-   2  statements : statement
+   2  statements :
    3             | statement statements
 
-   4  statement : DEF ID LPAREN parameters RPAREN COLON statement_list ENDEF
-   5            | IF expr COLON statement_list ELSE COLON statement_list ENDIF
-   6            | IF expr COLON statement_list ENDIF
-   7            | WHILE expr COLON statement_list NEXT
-   8            | RETURN expr
-   9            | expr
-  10            | BREAK
-  11            | CONTINUE
-
-  12  statement_list : statement
-  13                 | statement statement_list
+   4  statement : DEF ID LPAREN parameters RPAREN COLON statements ENDEF
+   5            | IF expr COLON statements ELSE COLON statements ENDIF
+   6            | CLASS ID LPAREN parameters RPAREN COLON statements ENDCLS
+   7            | IF expr COLON statements ENDIF
+   8            | WHILE expr COLON statements NEXT
+   9            | RETURN expr
+  10            | expr SEP
+  11            | BREAK
+  12            | CONTINUE
+  13            | RELEASE ID
 
   14  typ : BOOL
   15      | INT
@@ -29,32 +28,35 @@
   21       | expr PLUS expr
   22       | expr MINUS expr
   23       | ID ASSIGN expr
-  24       | typ Id_catg ASSIGN expr
-  25       | DEREF expr ASSIGN expr
-  26       | expr EQ expr
-  27       | expr NEQ expr
-  28       | expr MUL expr
-  29       | expr LT expr
-  30       | expr GT expr
-  31       | expr LTE expr
-  32       | expr GTE expr
-  33       | ID LPAREN args_opt RPAREN
-  34       | LPAREN expr RPAREN
-  35       | DEREF expr
+  24       | expr DOT ID LPAREN args_opt RPAREN
+  25       | LPAREN expr RPAREN
+  26       | typ Id_catg ASSIGN expr
+  27       | DEREF expr ASSIGN expr
+  28       | expr EQ expr
+  29       | expr NEQ expr
+  30       | expr MUL expr
+  31       | expr LT expr
+  32       | expr GT expr
+  33       | expr LTE expr
+  34       | expr GTE expr
+  35       | ID LPAREN args_opt RPAREN
+  36       | DEREF expr
+  37       | ADDRESS_OF expr
+  38       | RETAIN expr
 
-  36  args_opt :
-  37           | args
+  39  args_opt :
+  40           | args
 
-  38  args : expr
-  39       | expr COMMA args
+  41  args : expr
+  42       | expr COMMA args
 
-  40  parameters :
-  41             | parameter_list
+  43  parameters :
+  44             | parameter_list
 
-  42  parameter_list : ID
-  43                 | ID COMMA parameter_list
+  45  parameter_list : ID
+  46                 | ID COMMA parameter_list
 
-  44  %entry% : '\001' program_rule
+  47  %entry% : '\001' program_rule
 
 state 0
 	$accept : . %entry% $end  (0)
@@ -66,7 +68,8 @@ state 0
 
 
 state 1
-	%entry% : '\001' . program_rule  (44)
+	%entry% : '\001' . program_rule  (47)
+	statements : .  (2)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -81,13 +84,17 @@ state 1
 	BREAK  shift 13
 	CONTINUE  shift 14
 	DEREF  shift 15
-	.  error
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
+	CLASS  shift 18
+	RELEASE  shift 19
+	EOF  reduce 2
 
-	program_rule  goto 16
-	statements  goto 17
-	statement  goto 18
-	expr  goto 19
-	typ  goto 20
+	program_rule  goto 20
+	statements  goto 21
+	statement  goto 22
+	expr  goto 23
+	typ  goto 24
 
 
 state 2
@@ -108,15 +115,15 @@ state 4
 	.  reduce 19
 
 
-5: shift/reduce conflict (shift 21, reduce 20) on LPAREN
-5: shift/reduce conflict (shift 22, reduce 20) on ASSIGN
+5: shift/reduce conflict (shift 25, reduce 20) on LPAREN
+5: shift/reduce conflict (shift 26, reduce 20) on ASSIGN
 state 5
 	expr : ID .  (20)
 	expr : ID . ASSIGN expr  (23)
-	expr : ID . LPAREN args_opt RPAREN  (33)
+	expr : ID . LPAREN args_opt RPAREN  (35)
 
-	LPAREN  shift 21
-	ASSIGN  shift 22
+	LPAREN  shift 25
+	ASSIGN  shift 26
 	LITERAL  reduce 20
 	BLIT  reduce 20
 	ID  reduce 20
@@ -146,10 +153,17 @@ state 5
 	CONTINUE  reduce 20
 	DEREF  reduce 20
 	MUL  reduce 20
+	ADDRESS_OF  reduce 20
+	RETAIN  reduce 20
+	CLASS  reduce 20
+	ENDCLS  reduce 20
+	DOT  reduce 20
+	RELEASE  reduce 20
+	SEP  reduce 20
 
 
 state 6
-	expr : LPAREN . expr RPAREN  (34)
+	expr : LPAREN . expr RPAREN  (25)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -158,22 +172,24 @@ state 6
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 23
-	typ  goto 20
+	expr  goto 27
+	typ  goto 24
 
 
 state 7
-	statement : DEF . ID LPAREN parameters RPAREN COLON statement_list ENDEF  (4)
+	statement : DEF . ID LPAREN parameters RPAREN COLON statements ENDEF  (4)
 
-	ID  shift 24
+	ID  shift 28
 	.  error
 
 
 state 8
-	statement : IF . expr COLON statement_list ELSE COLON statement_list ENDIF  (5)
-	statement : IF . expr COLON statement_list ENDIF  (6)
+	statement : IF . expr COLON statements ELSE COLON statements ENDIF  (5)
+	statement : IF . expr COLON statements ENDIF  (7)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -182,14 +198,16 @@ state 8
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 25
-	typ  goto 20
+	expr  goto 29
+	typ  goto 24
 
 
 state 9
-	statement : WHILE . expr COLON statement_list NEXT  (7)
+	statement : WHILE . expr COLON statements NEXT  (8)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -198,14 +216,16 @@ state 9
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 26
-	typ  goto 20
+	expr  goto 30
+	typ  goto 24
 
 
 state 10
-	statement : RETURN . expr  (8)
+	statement : RETURN . expr  (9)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -214,10 +234,12 @@ state 10
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 27
-	typ  goto 20
+	expr  goto 31
+	typ  goto 24
 
 
 state 11
@@ -233,20 +255,20 @@ state 12
 
 
 state 13
-	statement : BREAK .  (10)
-
-	.  reduce 10
-
-
-state 14
-	statement : CONTINUE .  (11)
+	statement : BREAK .  (11)
 
 	.  reduce 11
 
 
+state 14
+	statement : CONTINUE .  (12)
+
+	.  reduce 12
+
+
 state 15
-	expr : DEREF . expr ASSIGN expr  (25)
-	expr : DEREF . expr  (35)
+	expr : DEREF . expr ASSIGN expr  (27)
+	expr : DEREF . expr  (36)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -255,28 +277,80 @@ state 15
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 28
-	typ  goto 20
+	expr  goto 32
+	typ  goto 24
 
 
 state 16
-	%entry% : '\001' program_rule .  (44)
+	expr : ADDRESS_OF . expr  (37)
 
-	.  reduce 44
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	INT  shift 11
+	BOOL  shift 12
+	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
+	.  error
+
+	expr  goto 33
+	typ  goto 24
 
 
 state 17
-	program_rule : statements . EOF  (1)
+	expr : RETAIN . expr  (38)
 
-	EOF  shift 29
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	INT  shift 11
+	BOOL  shift 12
+	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
+
+	expr  goto 34
+	typ  goto 24
 
 
 state 18
-	statements : statement .  (2)
+	statement : CLASS . ID LPAREN parameters RPAREN COLON statements ENDCLS  (6)
+
+	ID  shift 35
+	.  error
+
+
+state 19
+	statement : RELEASE . ID  (13)
+
+	ID  shift 36
+	.  error
+
+
+state 20
+	%entry% : '\001' program_rule .  (47)
+
+	.  reduce 47
+
+
+state 21
+	program_rule : statements . EOF  (1)
+
+	EOF  shift 37
+	.  error
+
+
+state 22
 	statements : statement . statements  (3)
+	statements : .  (2)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -291,35 +365,211 @@ state 18
 	BREAK  shift 13
 	CONTINUE  shift 14
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
+	CLASS  shift 18
+	RELEASE  shift 19
+	ENDEF  reduce 2
+	ELSE  reduce 2
+	ENDIF  reduce 2
+	NEXT  reduce 2
 	EOF  reduce 2
+	ENDCLS  reduce 2
 
-	statements  goto 30
-	statement  goto 18
-	expr  goto 19
-	typ  goto 20
+	statements  goto 38
+	statement  goto 22
+	expr  goto 23
+	typ  goto 24
 
 
-state 19
-	statement : expr .  (9)
+state 23
+	statement : expr . SEP  (10)
 	expr : expr . PLUS expr  (21)
 	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
 
-	PLUS  shift 31
-	MINUS  shift 32
-	EQ  shift 33
-	NEQ  shift 34
-	LT  shift 35
-	GT  shift 36
-	LTE  shift 37
-	GTE  shift 38
-	MUL  shift 39
+	PLUS  shift 39
+	MINUS  shift 40
+	EQ  shift 41
+	NEQ  shift 42
+	LT  shift 43
+	GT  shift 44
+	LTE  shift 45
+	GTE  shift 46
+	MUL  shift 47
+	DOT  shift 48
+	SEP  shift 49
+	.  error
+
+
+state 24
+	expr : typ . Id_catg ASSIGN expr  (26)
+
+	ID  shift 50
+	POINTER  shift 51
+	.  error
+
+	Id_catg  goto 52
+
+
+state 25
+	expr : ID LPAREN . args_opt RPAREN  (35)
+	args_opt : .  (39)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	INT  shift 11
+	BOOL  shift 12
+	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
+	RPAREN  reduce 39
+
+	expr  goto 53
+	typ  goto 24
+	args_opt  goto 54
+	args  goto 55
+
+
+state 26
+	expr : ID ASSIGN . expr  (23)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	INT  shift 11
+	BOOL  shift 12
+	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
+	.  error
+
+	expr  goto 56
+	typ  goto 24
+
+
+state 27
+	expr : expr . PLUS expr  (21)
+	expr : expr . MINUS expr  (22)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : LPAREN expr . RPAREN  (25)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
+
+	RPAREN  shift 57
+	PLUS  shift 39
+	MINUS  shift 40
+	EQ  shift 41
+	NEQ  shift 42
+	LT  shift 43
+	GT  shift 44
+	LTE  shift 45
+	GTE  shift 46
+	MUL  shift 47
+	DOT  shift 48
+	.  error
+
+
+state 28
+	statement : DEF ID . LPAREN parameters RPAREN COLON statements ENDEF  (4)
+
+	LPAREN  shift 58
+	.  error
+
+
+state 29
+	statement : IF expr . COLON statements ELSE COLON statements ENDIF  (5)
+	statement : IF expr . COLON statements ENDIF  (7)
+	expr : expr . PLUS expr  (21)
+	expr : expr . MINUS expr  (22)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
+
+	COLON  shift 59
+	PLUS  shift 39
+	MINUS  shift 40
+	EQ  shift 41
+	NEQ  shift 42
+	LT  shift 43
+	GT  shift 44
+	LTE  shift 45
+	GTE  shift 46
+	MUL  shift 47
+	DOT  shift 48
+	.  error
+
+
+state 30
+	statement : WHILE expr . COLON statements NEXT  (8)
+	expr : expr . PLUS expr  (21)
+	expr : expr . MINUS expr  (22)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
+
+	COLON  shift 60
+	PLUS  shift 39
+	MINUS  shift 40
+	EQ  shift 41
+	NEQ  shift 42
+	LT  shift 43
+	GT  shift 44
+	LTE  shift 45
+	GTE  shift 46
+	MUL  shift 47
+	DOT  shift 48
+	.  error
+
+
+state 31
+	statement : RETURN expr .  (9)
+	expr : expr . PLUS expr  (21)
+	expr : expr . MINUS expr  (22)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
+
+	PLUS  shift 39
+	MINUS  shift 40
+	EQ  shift 41
+	NEQ  shift 42
+	LT  shift 43
+	GT  shift 44
+	LTE  shift 45
+	GTE  shift 46
+	MUL  shift 47
+	DOT  shift 48
 	LITERAL  reduce 9
 	BLIT  reduce 9
 	ID  reduce 9
@@ -338,206 +588,88 @@ state 19
 	BREAK  reduce 9
 	CONTINUE  reduce 9
 	DEREF  reduce 9
+	ADDRESS_OF  reduce 9
+	RETAIN  reduce 9
+	CLASS  reduce 9
+	ENDCLS  reduce 9
+	RELEASE  reduce 9
 
 
-state 20
-	expr : typ . Id_catg ASSIGN expr  (24)
-
-	ID  shift 40
-	POINTER  shift 41
-	.  error
-
-	Id_catg  goto 42
-
-
-state 21
-	expr : ID LPAREN . args_opt RPAREN  (33)
-	args_opt : .  (36)
-
-	LITERAL  shift 3
-	BLIT  shift 4
-	ID  shift 5
-	LPAREN  shift 6
-	INT  shift 11
-	BOOL  shift 12
-	DEREF  shift 15
-	RPAREN  reduce 36
-
-	expr  goto 43
-	typ  goto 20
-	args_opt  goto 44
-	args  goto 45
-
-
-state 22
-	expr : ID ASSIGN . expr  (23)
-
-	LITERAL  shift 3
-	BLIT  shift 4
-	ID  shift 5
-	LPAREN  shift 6
-	INT  shift 11
-	BOOL  shift 12
-	DEREF  shift 15
-	.  error
-
-	expr  goto 46
-	typ  goto 20
-
-
-state 23
+state 32
 	expr : expr . PLUS expr  (21)
 	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
-	expr : LPAREN expr . RPAREN  (34)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : DEREF expr . ASSIGN expr  (27)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
+	expr : DEREF expr .  (36)
 
-	RPAREN  shift 47
-	PLUS  shift 31
-	MINUS  shift 32
-	EQ  shift 33
-	NEQ  shift 34
-	LT  shift 35
-	GT  shift 36
-	LTE  shift 37
-	GTE  shift 38
-	MUL  shift 39
+	.  reduce 36
+
+
+state 33
+	expr : expr . PLUS expr  (21)
+	expr : expr . MINUS expr  (22)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
+	expr : ADDRESS_OF expr .  (37)
+
+	.  reduce 37
+
+
+state 34
+	expr : expr . PLUS expr  (21)
+	expr : expr . MINUS expr  (22)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
+	expr : RETAIN expr .  (38)
+
+	.  reduce 38
+
+
+state 35
+	statement : CLASS ID . LPAREN parameters RPAREN COLON statements ENDCLS  (6)
+
+	LPAREN  shift 62
 	.  error
 
 
-state 24
-	statement : DEF ID . LPAREN parameters RPAREN COLON statement_list ENDEF  (4)
+state 36
+	statement : RELEASE ID .  (13)
 
-	LPAREN  shift 48
-	.  error
-
-
-state 25
-	statement : IF expr . COLON statement_list ELSE COLON statement_list ENDIF  (5)
-	statement : IF expr . COLON statement_list ENDIF  (6)
-	expr : expr . PLUS expr  (21)
-	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
-
-	COLON  shift 49
-	PLUS  shift 31
-	MINUS  shift 32
-	EQ  shift 33
-	NEQ  shift 34
-	LT  shift 35
-	GT  shift 36
-	LTE  shift 37
-	GTE  shift 38
-	MUL  shift 39
-	.  error
+	.  reduce 13
 
 
-state 26
-	statement : WHILE expr . COLON statement_list NEXT  (7)
-	expr : expr . PLUS expr  (21)
-	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
-
-	COLON  shift 50
-	PLUS  shift 31
-	MINUS  shift 32
-	EQ  shift 33
-	NEQ  shift 34
-	LT  shift 35
-	GT  shift 36
-	LTE  shift 37
-	GTE  shift 38
-	MUL  shift 39
-	.  error
-
-
-state 27
-	statement : RETURN expr .  (8)
-	expr : expr . PLUS expr  (21)
-	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
-
-	PLUS  shift 31
-	MINUS  shift 32
-	EQ  shift 33
-	NEQ  shift 34
-	LT  shift 35
-	GT  shift 36
-	LTE  shift 37
-	GTE  shift 38
-	MUL  shift 39
-	LITERAL  reduce 8
-	BLIT  reduce 8
-	ID  reduce 8
-	LPAREN  reduce 8
-	DEF  reduce 8
-	ENDEF  reduce 8
-	ELSE  reduce 8
-	IF  reduce 8
-	ENDIF  reduce 8
-	WHILE  reduce 8
-	NEXT  reduce 8
-	RETURN  reduce 8
-	INT  reduce 8
-	BOOL  reduce 8
-	EOF  reduce 8
-	BREAK  reduce 8
-	CONTINUE  reduce 8
-	DEREF  reduce 8
-
-
-state 28
-	expr : expr . PLUS expr  (21)
-	expr : expr . MINUS expr  (22)
-	expr : DEREF expr . ASSIGN expr  (25)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
-	expr : DEREF expr .  (35)
-
-	.  reduce 35
-
-
-state 29
+state 37
 	program_rule : statements EOF .  (1)
 
 	.  reduce 1
 
 
-state 30
+state 38
 	statements : statement statements .  (3)
 
 	.  reduce 3
 
 
-state 31
+state 39
 	expr : expr PLUS . expr  (21)
 
 	LITERAL  shift 3
@@ -547,13 +679,15 @@ state 31
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 52
-	typ  goto 20
+	expr  goto 63
+	typ  goto 24
 
 
-state 32
+state 40
 	expr : expr MINUS . expr  (22)
 
 	LITERAL  shift 3
@@ -563,14 +697,16 @@ state 32
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 53
-	typ  goto 20
+	expr  goto 64
+	typ  goto 24
 
 
-state 33
-	expr : expr EQ . expr  (26)
+state 41
+	expr : expr EQ . expr  (28)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -579,14 +715,16 @@ state 33
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 54
-	typ  goto 20
+	expr  goto 65
+	typ  goto 24
 
 
-state 34
-	expr : expr NEQ . expr  (27)
+state 42
+	expr : expr NEQ . expr  (29)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -595,14 +733,16 @@ state 34
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 55
-	typ  goto 20
+	expr  goto 66
+	typ  goto 24
 
 
-state 35
-	expr : expr LT . expr  (29)
+state 43
+	expr : expr LT . expr  (31)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -611,14 +751,16 @@ state 35
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 56
-	typ  goto 20
+	expr  goto 67
+	typ  goto 24
 
 
-state 36
-	expr : expr GT . expr  (30)
+state 44
+	expr : expr GT . expr  (32)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -627,14 +769,16 @@ state 36
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 57
-	typ  goto 20
+	expr  goto 68
+	typ  goto 24
 
 
-state 37
-	expr : expr LTE . expr  (31)
+state 45
+	expr : expr LTE . expr  (33)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -643,14 +787,16 @@ state 37
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 58
-	typ  goto 20
+	expr  goto 69
+	typ  goto 24
 
 
-state 38
-	expr : expr GTE . expr  (32)
+state 46
+	expr : expr GTE . expr  (34)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -659,14 +805,16 @@ state 38
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 59
-	typ  goto 20
+	expr  goto 70
+	typ  goto 24
 
 
-state 39
-	expr : expr MUL . expr  (28)
+state 47
+	expr : expr MUL . expr  (30)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -675,92 +823,111 @@ state 39
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 60
-	typ  goto 20
+	expr  goto 71
+	typ  goto 24
 
 
-state 40
+state 48
+	expr : expr DOT . ID LPAREN args_opt RPAREN  (24)
+
+	ID  shift 72
+	.  error
+
+
+state 49
+	statement : expr SEP .  (10)
+
+	.  reduce 10
+
+
+state 50
 	Id_catg : ID .  (16)
 
 	.  reduce 16
 
 
-state 41
+state 51
 	Id_catg : POINTER . ID  (17)
 
-	ID  shift 61
+	ID  shift 73
 	.  error
 
 
-state 42
-	expr : typ Id_catg . ASSIGN expr  (24)
+state 52
+	expr : typ Id_catg . ASSIGN expr  (26)
 
-	ASSIGN  shift 62
+	ASSIGN  shift 74
 	.  error
 
 
-state 43
+state 53
 	expr : expr . PLUS expr  (21)
 	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
-	args : expr .  (38)
-	args : expr . COMMA args  (39)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
+	args : expr .  (41)
+	args : expr . COMMA args  (42)
 
-	COMMA  shift 63
-	PLUS  shift 31
-	MINUS  shift 32
-	EQ  shift 33
-	NEQ  shift 34
-	LT  shift 35
-	GT  shift 36
-	LTE  shift 37
-	GTE  shift 38
-	MUL  shift 39
-	RPAREN  reduce 38
+	COMMA  shift 75
+	PLUS  shift 39
+	MINUS  shift 40
+	EQ  shift 41
+	NEQ  shift 42
+	LT  shift 43
+	GT  shift 44
+	LTE  shift 45
+	GTE  shift 46
+	MUL  shift 47
+	DOT  shift 48
+	RPAREN  reduce 41
 
 
-state 44
-	expr : ID LPAREN args_opt . RPAREN  (33)
+state 54
+	expr : ID LPAREN args_opt . RPAREN  (35)
 
-	RPAREN  shift 64
+	RPAREN  shift 76
 	.  error
 
 
-state 45
-	args_opt : args .  (37)
+state 55
+	args_opt : args .  (40)
 
-	.  reduce 37
+	.  reduce 40
 
 
-state 46
+state 56
 	expr : expr . PLUS expr  (21)
 	expr : expr . MINUS expr  (22)
 	expr : ID ASSIGN expr .  (23)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
 
-	PLUS  shift 31
-	MINUS  shift 32
-	EQ  shift 33
-	NEQ  shift 34
-	LT  shift 35
-	GT  shift 36
-	LTE  shift 37
-	GTE  shift 38
-	MUL  shift 39
+	PLUS  shift 39
+	MINUS  shift 40
+	EQ  shift 41
+	NEQ  shift 42
+	LT  shift 43
+	GT  shift 44
+	LTE  shift 45
+	GTE  shift 46
+	MUL  shift 47
+	DOT  shift 48
 	LITERAL  reduce 23
 	BLIT  reduce 23
 	ID  reduce 23
@@ -783,52 +950,35 @@ state 46
 	BREAK  reduce 23
 	CONTINUE  reduce 23
 	DEREF  reduce 23
+	ADDRESS_OF  reduce 23
+	RETAIN  reduce 23
+	CLASS  reduce 23
+	ENDCLS  reduce 23
+	RELEASE  reduce 23
+	SEP  reduce 23
 
 
-state 47
-	expr : LPAREN expr RPAREN .  (34)
+state 57
+	expr : LPAREN expr RPAREN .  (25)
 
-	.  reduce 34
-
-
-state 48
-	statement : DEF ID LPAREN . parameters RPAREN COLON statement_list ENDEF  (4)
-	parameters : .  (40)
-
-	ID  shift 65
-	RPAREN  reduce 40
-
-	parameters  goto 66
-	parameter_list  goto 67
+	.  reduce 25
 
 
-state 49
-	statement : IF expr COLON . statement_list ELSE COLON statement_list ENDIF  (5)
-	statement : IF expr COLON . statement_list ENDIF  (6)
+state 58
+	statement : DEF ID LPAREN . parameters RPAREN COLON statements ENDEF  (4)
+	parameters : .  (43)
 
-	LITERAL  shift 3
-	BLIT  shift 4
-	ID  shift 5
-	LPAREN  shift 6
-	DEF  shift 7
-	IF  shift 8
-	WHILE  shift 9
-	RETURN  shift 10
-	INT  shift 11
-	BOOL  shift 12
-	BREAK  shift 13
-	CONTINUE  shift 14
-	DEREF  shift 15
-	.  error
+	ID  shift 77
+	RPAREN  reduce 43
 
-	statement  goto 68
-	statement_list  goto 69
-	expr  goto 19
-	typ  goto 20
+	parameters  goto 78
+	parameter_list  goto 79
 
 
-state 50
-	statement : WHILE expr COLON . statement_list NEXT  (7)
+state 59
+	statement : IF expr COLON . statements ELSE COLON statements ENDIF  (5)
+	statement : IF expr COLON . statements ENDIF  (7)
+	statements : .  (2)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -843,16 +993,50 @@ state 50
 	BREAK  shift 13
 	CONTINUE  shift 14
 	DEREF  shift 15
-	.  error
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
+	CLASS  shift 18
+	RELEASE  shift 19
+	ELSE  reduce 2
+	ENDIF  reduce 2
 
-	statement  goto 68
-	statement_list  goto 70
-	expr  goto 19
-	typ  goto 20
+	statements  goto 80
+	statement  goto 22
+	expr  goto 23
+	typ  goto 24
 
 
-state 51
-	expr : DEREF expr ASSIGN . expr  (25)
+state 60
+	statement : WHILE expr COLON . statements NEXT  (8)
+	statements : .  (2)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	DEF  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	RETURN  shift 10
+	INT  shift 11
+	BOOL  shift 12
+	BREAK  shift 13
+	CONTINUE  shift 14
+	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
+	CLASS  shift 18
+	RELEASE  shift 19
+	NEXT  reduce 2
+
+	statements  goto 81
+	statement  goto 22
+	expr  goto 23
+	typ  goto 24
+
+
+state 61
+	expr : DEREF expr ASSIGN . expr  (27)
 
 	LITERAL  shift 3
 	BLIT  shift 4
@@ -861,25 +1045,39 @@ state 51
 	INT  shift 11
 	BOOL  shift 12
 	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	expr  goto 71
-	typ  goto 20
+	expr  goto 82
+	typ  goto 24
 
 
-state 52
+state 62
+	statement : CLASS ID LPAREN . parameters RPAREN COLON statements ENDCLS  (6)
+	parameters : .  (43)
+
+	ID  shift 77
+	RPAREN  reduce 43
+
+	parameters  goto 83
+	parameter_list  goto 79
+
+
+state 63
 	expr : expr . PLUS expr  (21)
 	expr : expr PLUS expr .  (21)
 	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
 
-	MUL  shift 39
+	MUL  shift 47
 	LITERAL  reduce 21
 	BLIT  reduce 21
 	ID  reduce 21
@@ -910,21 +1108,29 @@ state 52
 	BREAK  reduce 21
 	CONTINUE  reduce 21
 	DEREF  reduce 21
+	ADDRESS_OF  reduce 21
+	RETAIN  reduce 21
+	CLASS  reduce 21
+	ENDCLS  reduce 21
+	DOT  reduce 21
+	RELEASE  reduce 21
+	SEP  reduce 21
 
 
-state 53
+state 64
 	expr : expr . PLUS expr  (21)
 	expr : expr . MINUS expr  (22)
 	expr : expr MINUS expr .  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
 
-	MUL  shift 39
+	MUL  shift 47
 	LITERAL  reduce 22
 	BLIT  reduce 22
 	ID  reduce 22
@@ -955,113 +1161,88 @@ state 53
 	BREAK  reduce 22
 	CONTINUE  reduce 22
 	DEREF  reduce 22
+	ADDRESS_OF  reduce 22
+	RETAIN  reduce 22
+	CLASS  reduce 22
+	ENDCLS  reduce 22
+	DOT  reduce 22
+	RELEASE  reduce 22
+	SEP  reduce 22
 
 
-state 54
+state 65
 	expr : expr . PLUS expr  (21)
 	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr EQ expr .  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr EQ expr .  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
 
-	PLUS  shift 31
-	MINUS  shift 32
-	LT  shift 35
-	GT  shift 36
-	LTE  shift 37
-	GTE  shift 38
-	MUL  shift 39
-	LITERAL  reduce 26
-	BLIT  reduce 26
-	ID  reduce 26
-	LPAREN  reduce 26
-	RPAREN  reduce 26
-	COLON  reduce 26
-	COMMA  reduce 26
-	DEF  reduce 26
-	ENDEF  reduce 26
-	ELSE  reduce 26
-	IF  reduce 26
-	ENDIF  reduce 26
-	WHILE  reduce 26
-	NEXT  reduce 26
-	RETURN  reduce 26
-	INT  reduce 26
-	BOOL  reduce 26
-	ASSIGN  reduce 26
-	EQ  reduce 26
-	NEQ  reduce 26
-	EOF  reduce 26
-	BREAK  reduce 26
-	CONTINUE  reduce 26
-	DEREF  reduce 26
+	PLUS  shift 39
+	MINUS  shift 40
+	LT  shift 43
+	GT  shift 44
+	LTE  shift 45
+	GTE  shift 46
+	MUL  shift 47
+	LITERAL  reduce 28
+	BLIT  reduce 28
+	ID  reduce 28
+	LPAREN  reduce 28
+	RPAREN  reduce 28
+	COLON  reduce 28
+	COMMA  reduce 28
+	DEF  reduce 28
+	ENDEF  reduce 28
+	ELSE  reduce 28
+	IF  reduce 28
+	ENDIF  reduce 28
+	WHILE  reduce 28
+	NEXT  reduce 28
+	RETURN  reduce 28
+	INT  reduce 28
+	BOOL  reduce 28
+	ASSIGN  reduce 28
+	EQ  reduce 28
+	NEQ  reduce 28
+	EOF  reduce 28
+	BREAK  reduce 28
+	CONTINUE  reduce 28
+	DEREF  reduce 28
+	ADDRESS_OF  reduce 28
+	RETAIN  reduce 28
+	CLASS  reduce 28
+	ENDCLS  reduce 28
+	DOT  reduce 28
+	RELEASE  reduce 28
+	SEP  reduce 28
 
 
-state 55
+state 66
 	expr : expr . PLUS expr  (21)
 	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr NEQ expr .  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr NEQ expr .  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
 
-	PLUS  shift 31
-	MINUS  shift 32
-	LT  shift 35
-	GT  shift 36
-	LTE  shift 37
-	GTE  shift 38
-	MUL  shift 39
-	LITERAL  reduce 27
-	BLIT  reduce 27
-	ID  reduce 27
-	LPAREN  reduce 27
-	RPAREN  reduce 27
-	COLON  reduce 27
-	COMMA  reduce 27
-	DEF  reduce 27
-	ENDEF  reduce 27
-	ELSE  reduce 27
-	IF  reduce 27
-	ENDIF  reduce 27
-	WHILE  reduce 27
-	NEXT  reduce 27
-	RETURN  reduce 27
-	INT  reduce 27
-	BOOL  reduce 27
-	ASSIGN  reduce 27
-	EQ  reduce 27
-	NEQ  reduce 27
-	EOF  reduce 27
-	BREAK  reduce 27
-	CONTINUE  reduce 27
-	DEREF  reduce 27
-
-
-state 56
-	expr : expr . PLUS expr  (21)
-	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr LT expr .  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
-
-	PLUS  shift 31
-	MINUS  shift 32
-	MUL  shift 39
+	PLUS  shift 39
+	MINUS  shift 40
+	LT  shift 43
+	GT  shift 44
+	LTE  shift 45
+	GTE  shift 46
+	MUL  shift 47
 	LITERAL  reduce 29
 	BLIT  reduce 29
 	ID  reduce 29
@@ -1082,76 +1263,35 @@ state 56
 	ASSIGN  reduce 29
 	EQ  reduce 29
 	NEQ  reduce 29
-	LT  reduce 29
-	GT  reduce 29
-	LTE  reduce 29
-	GTE  reduce 29
 	EOF  reduce 29
 	BREAK  reduce 29
 	CONTINUE  reduce 29
 	DEREF  reduce 29
+	ADDRESS_OF  reduce 29
+	RETAIN  reduce 29
+	CLASS  reduce 29
+	ENDCLS  reduce 29
+	DOT  reduce 29
+	RELEASE  reduce 29
+	SEP  reduce 29
 
 
-state 57
+state 67
 	expr : expr . PLUS expr  (21)
 	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr GT expr .  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr LT expr .  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
 
-	PLUS  shift 31
-	MINUS  shift 32
-	MUL  shift 39
-	LITERAL  reduce 30
-	BLIT  reduce 30
-	ID  reduce 30
-	LPAREN  reduce 30
-	RPAREN  reduce 30
-	COLON  reduce 30
-	COMMA  reduce 30
-	DEF  reduce 30
-	ENDEF  reduce 30
-	ELSE  reduce 30
-	IF  reduce 30
-	ENDIF  reduce 30
-	WHILE  reduce 30
-	NEXT  reduce 30
-	RETURN  reduce 30
-	INT  reduce 30
-	BOOL  reduce 30
-	ASSIGN  reduce 30
-	EQ  reduce 30
-	NEQ  reduce 30
-	LT  reduce 30
-	GT  reduce 30
-	LTE  reduce 30
-	GTE  reduce 30
-	EOF  reduce 30
-	BREAK  reduce 30
-	CONTINUE  reduce 30
-	DEREF  reduce 30
-
-
-state 58
-	expr : expr . PLUS expr  (21)
-	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr LTE expr .  (31)
-	expr : expr . GTE expr  (32)
-
-	PLUS  shift 31
-	MINUS  shift 32
-	MUL  shift 39
+	PLUS  shift 39
+	MINUS  shift 40
+	MUL  shift 47
 	LITERAL  reduce 31
 	BLIT  reduce 31
 	ID  reduce 31
@@ -1180,23 +1320,31 @@ state 58
 	BREAK  reduce 31
 	CONTINUE  reduce 31
 	DEREF  reduce 31
+	ADDRESS_OF  reduce 31
+	RETAIN  reduce 31
+	CLASS  reduce 31
+	ENDCLS  reduce 31
+	DOT  reduce 31
+	RELEASE  reduce 31
+	SEP  reduce 31
 
 
-state 59
+state 68
 	expr : expr . PLUS expr  (21)
 	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
-	expr : expr GTE expr .  (32)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr GT expr .  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
 
-	PLUS  shift 31
-	MINUS  shift 32
-	MUL  shift 39
+	PLUS  shift 39
+	MINUS  shift 40
+	MUL  shift 47
 	LITERAL  reduce 32
 	BLIT  reduce 32
 	ID  reduce 32
@@ -1225,352 +1373,559 @@ state 59
 	BREAK  reduce 32
 	CONTINUE  reduce 32
 	DEREF  reduce 32
-
-
-state 60
-	expr : expr . PLUS expr  (21)
-	expr : expr . MINUS expr  (22)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr MUL expr .  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
-
-	.  reduce 28
-
-
-state 61
-	Id_catg : POINTER ID .  (17)
-
-	.  reduce 17
-
-
-state 62
-	expr : typ Id_catg ASSIGN . expr  (24)
-
-	LITERAL  shift 3
-	BLIT  shift 4
-	ID  shift 5
-	LPAREN  shift 6
-	INT  shift 11
-	BOOL  shift 12
-	DEREF  shift 15
-	.  error
-
-	expr  goto 72
-	typ  goto 20
-
-
-state 63
-	args : expr COMMA . args  (39)
-
-	LITERAL  shift 3
-	BLIT  shift 4
-	ID  shift 5
-	LPAREN  shift 6
-	INT  shift 11
-	BOOL  shift 12
-	DEREF  shift 15
-	.  error
-
-	expr  goto 43
-	typ  goto 20
-	args  goto 73
-
-
-state 64
-	expr : ID LPAREN args_opt RPAREN .  (33)
-
-	.  reduce 33
-
-
-state 65
-	parameter_list : ID .  (42)
-	parameter_list : ID . COMMA parameter_list  (43)
-
-	COMMA  shift 74
-	RPAREN  reduce 42
-
-
-state 66
-	statement : DEF ID LPAREN parameters . RPAREN COLON statement_list ENDEF  (4)
-
-	RPAREN  shift 75
-	.  error
-
-
-state 67
-	parameters : parameter_list .  (41)
-
-	.  reduce 41
-
-
-state 68
-	statement_list : statement .  (12)
-	statement_list : statement . statement_list  (13)
-
-	LITERAL  shift 3
-	BLIT  shift 4
-	ID  shift 5
-	LPAREN  shift 6
-	DEF  shift 7
-	IF  shift 8
-	WHILE  shift 9
-	RETURN  shift 10
-	INT  shift 11
-	BOOL  shift 12
-	BREAK  shift 13
-	CONTINUE  shift 14
-	DEREF  shift 15
-	ENDEF  reduce 12
-	ELSE  reduce 12
-	ENDIF  reduce 12
-	NEXT  reduce 12
-
-	statement  goto 68
-	statement_list  goto 76
-	expr  goto 19
-	typ  goto 20
+	ADDRESS_OF  reduce 32
+	RETAIN  reduce 32
+	CLASS  reduce 32
+	ENDCLS  reduce 32
+	DOT  reduce 32
+	RELEASE  reduce 32
+	SEP  reduce 32
 
 
 state 69
-	statement : IF expr COLON statement_list . ELSE COLON statement_list ENDIF  (5)
-	statement : IF expr COLON statement_list . ENDIF  (6)
+	expr : expr . PLUS expr  (21)
+	expr : expr . MINUS expr  (22)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr LTE expr .  (33)
+	expr : expr . GTE expr  (34)
 
-	ELSE  shift 77
-	ENDIF  shift 78
-	.  error
+	PLUS  shift 39
+	MINUS  shift 40
+	MUL  shift 47
+	LITERAL  reduce 33
+	BLIT  reduce 33
+	ID  reduce 33
+	LPAREN  reduce 33
+	RPAREN  reduce 33
+	COLON  reduce 33
+	COMMA  reduce 33
+	DEF  reduce 33
+	ENDEF  reduce 33
+	ELSE  reduce 33
+	IF  reduce 33
+	ENDIF  reduce 33
+	WHILE  reduce 33
+	NEXT  reduce 33
+	RETURN  reduce 33
+	INT  reduce 33
+	BOOL  reduce 33
+	ASSIGN  reduce 33
+	EQ  reduce 33
+	NEQ  reduce 33
+	LT  reduce 33
+	GT  reduce 33
+	LTE  reduce 33
+	GTE  reduce 33
+	EOF  reduce 33
+	BREAK  reduce 33
+	CONTINUE  reduce 33
+	DEREF  reduce 33
+	ADDRESS_OF  reduce 33
+	RETAIN  reduce 33
+	CLASS  reduce 33
+	ENDCLS  reduce 33
+	DOT  reduce 33
+	RELEASE  reduce 33
+	SEP  reduce 33
 
 
 state 70
-	statement : WHILE expr COLON statement_list . NEXT  (7)
+	expr : expr . PLUS expr  (21)
+	expr : expr . MINUS expr  (22)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
+	expr : expr GTE expr .  (34)
 
-	NEXT  shift 79
-	.  error
+	PLUS  shift 39
+	MINUS  shift 40
+	MUL  shift 47
+	LITERAL  reduce 34
+	BLIT  reduce 34
+	ID  reduce 34
+	LPAREN  reduce 34
+	RPAREN  reduce 34
+	COLON  reduce 34
+	COMMA  reduce 34
+	DEF  reduce 34
+	ENDEF  reduce 34
+	ELSE  reduce 34
+	IF  reduce 34
+	ENDIF  reduce 34
+	WHILE  reduce 34
+	NEXT  reduce 34
+	RETURN  reduce 34
+	INT  reduce 34
+	BOOL  reduce 34
+	ASSIGN  reduce 34
+	EQ  reduce 34
+	NEQ  reduce 34
+	LT  reduce 34
+	GT  reduce 34
+	LTE  reduce 34
+	GTE  reduce 34
+	EOF  reduce 34
+	BREAK  reduce 34
+	CONTINUE  reduce 34
+	DEREF  reduce 34
+	ADDRESS_OF  reduce 34
+	RETAIN  reduce 34
+	CLASS  reduce 34
+	ENDCLS  reduce 34
+	DOT  reduce 34
+	RELEASE  reduce 34
+	SEP  reduce 34
 
 
 state 71
 	expr : expr . PLUS expr  (21)
 	expr : expr . MINUS expr  (22)
-	expr : DEREF expr ASSIGN expr .  (25)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr MUL expr .  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
 
-	PLUS  shift 31
-	MINUS  shift 32
-	EQ  shift 33
-	NEQ  shift 34
-	LT  shift 35
-	GT  shift 36
-	LTE  shift 37
-	GTE  shift 38
-	MUL  shift 39
-	LITERAL  reduce 25
-	BLIT  reduce 25
-	ID  reduce 25
-	LPAREN  reduce 25
-	RPAREN  reduce 25
-	COLON  reduce 25
-	COMMA  reduce 25
-	DEF  reduce 25
-	ENDEF  reduce 25
-	ELSE  reduce 25
-	IF  reduce 25
-	ENDIF  reduce 25
-	WHILE  reduce 25
-	NEXT  reduce 25
-	RETURN  reduce 25
-	INT  reduce 25
-	BOOL  reduce 25
-	ASSIGN  reduce 25
-	EOF  reduce 25
-	BREAK  reduce 25
-	CONTINUE  reduce 25
-	DEREF  reduce 25
+	.  reduce 30
 
 
 state 72
-	expr : expr . PLUS expr  (21)
-	expr : expr . MINUS expr  (22)
-	expr : typ Id_catg ASSIGN expr .  (24)
-	expr : expr . EQ expr  (26)
-	expr : expr . NEQ expr  (27)
-	expr : expr . MUL expr  (28)
-	expr : expr . LT expr  (29)
-	expr : expr . GT expr  (30)
-	expr : expr . LTE expr  (31)
-	expr : expr . GTE expr  (32)
+	expr : expr DOT ID . LPAREN args_opt RPAREN  (24)
 
-	PLUS  shift 31
-	MINUS  shift 32
-	EQ  shift 33
-	NEQ  shift 34
-	LT  shift 35
-	GT  shift 36
-	LTE  shift 37
-	GTE  shift 38
-	MUL  shift 39
-	LITERAL  reduce 24
-	BLIT  reduce 24
-	ID  reduce 24
-	LPAREN  reduce 24
-	RPAREN  reduce 24
-	COLON  reduce 24
-	COMMA  reduce 24
-	DEF  reduce 24
-	ENDEF  reduce 24
-	ELSE  reduce 24
-	IF  reduce 24
-	ENDIF  reduce 24
-	WHILE  reduce 24
-	NEXT  reduce 24
-	RETURN  reduce 24
-	INT  reduce 24
-	BOOL  reduce 24
-	ASSIGN  reduce 24
-	EOF  reduce 24
-	BREAK  reduce 24
-	CONTINUE  reduce 24
-	DEREF  reduce 24
+	LPAREN  shift 84
+	.  error
 
 
 state 73
-	args : expr COMMA args .  (39)
+	Id_catg : POINTER ID .  (17)
 
-	.  reduce 39
+	.  reduce 17
 
 
 state 74
-	parameter_list : ID COMMA . parameter_list  (43)
+	expr : typ Id_catg ASSIGN . expr  (26)
 
-	ID  shift 65
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	INT  shift 11
+	BOOL  shift 12
+	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
 
-	parameter_list  goto 80
+	expr  goto 85
+	typ  goto 24
 
 
 state 75
-	statement : DEF ID LPAREN parameters RPAREN . COLON statement_list ENDEF  (4)
+	args : expr COMMA . args  (42)
 
-	COLON  shift 81
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	INT  shift 11
+	BOOL  shift 12
+	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
 	.  error
+
+	expr  goto 53
+	typ  goto 24
+	args  goto 86
 
 
 state 76
-	statement_list : statement statement_list .  (13)
+	expr : ID LPAREN args_opt RPAREN .  (35)
 
-	.  reduce 13
+	.  reduce 35
 
 
 state 77
-	statement : IF expr COLON statement_list ELSE . COLON statement_list ENDIF  (5)
+	parameter_list : ID .  (45)
+	parameter_list : ID . COMMA parameter_list  (46)
 
-	COLON  shift 82
-	.  error
+	COMMA  shift 87
+	RPAREN  reduce 45
 
 
 state 78
-	statement : IF expr COLON statement_list ENDIF .  (6)
+	statement : DEF ID LPAREN parameters . RPAREN COLON statements ENDEF  (4)
 
-	.  reduce 6
+	RPAREN  shift 88
+	.  error
 
 
 state 79
-	statement : WHILE expr COLON statement_list NEXT .  (7)
+	parameters : parameter_list .  (44)
 
-	.  reduce 7
+	.  reduce 44
 
 
 state 80
-	parameter_list : ID COMMA parameter_list .  (43)
+	statement : IF expr COLON statements . ELSE COLON statements ENDIF  (5)
+	statement : IF expr COLON statements . ENDIF  (7)
 
-	.  reduce 43
+	ELSE  shift 89
+	ENDIF  shift 90
+	.  error
 
 
 state 81
-	statement : DEF ID LPAREN parameters RPAREN COLON . statement_list ENDEF  (4)
+	statement : WHILE expr COLON statements . NEXT  (8)
 
-	LITERAL  shift 3
-	BLIT  shift 4
-	ID  shift 5
-	LPAREN  shift 6
-	DEF  shift 7
-	IF  shift 8
-	WHILE  shift 9
-	RETURN  shift 10
-	INT  shift 11
-	BOOL  shift 12
-	BREAK  shift 13
-	CONTINUE  shift 14
-	DEREF  shift 15
+	NEXT  shift 91
 	.  error
-
-	statement  goto 68
-	statement_list  goto 83
-	expr  goto 19
-	typ  goto 20
 
 
 state 82
-	statement : IF expr COLON statement_list ELSE COLON . statement_list ENDIF  (5)
+	expr : expr . PLUS expr  (21)
+	expr : expr . MINUS expr  (22)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : DEREF expr ASSIGN expr .  (27)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
 
-	LITERAL  shift 3
-	BLIT  shift 4
-	ID  shift 5
-	LPAREN  shift 6
-	DEF  shift 7
-	IF  shift 8
-	WHILE  shift 9
-	RETURN  shift 10
-	INT  shift 11
-	BOOL  shift 12
-	BREAK  shift 13
-	CONTINUE  shift 14
-	DEREF  shift 15
-	.  error
-
-	statement  goto 68
-	statement_list  goto 84
-	expr  goto 19
-	typ  goto 20
+	PLUS  shift 39
+	MINUS  shift 40
+	EQ  shift 41
+	NEQ  shift 42
+	LT  shift 43
+	GT  shift 44
+	LTE  shift 45
+	GTE  shift 46
+	MUL  shift 47
+	DOT  shift 48
+	LITERAL  reduce 27
+	BLIT  reduce 27
+	ID  reduce 27
+	LPAREN  reduce 27
+	RPAREN  reduce 27
+	COLON  reduce 27
+	COMMA  reduce 27
+	DEF  reduce 27
+	ENDEF  reduce 27
+	ELSE  reduce 27
+	IF  reduce 27
+	ENDIF  reduce 27
+	WHILE  reduce 27
+	NEXT  reduce 27
+	RETURN  reduce 27
+	INT  reduce 27
+	BOOL  reduce 27
+	ASSIGN  reduce 27
+	EOF  reduce 27
+	BREAK  reduce 27
+	CONTINUE  reduce 27
+	DEREF  reduce 27
+	ADDRESS_OF  reduce 27
+	RETAIN  reduce 27
+	CLASS  reduce 27
+	ENDCLS  reduce 27
+	RELEASE  reduce 27
+	SEP  reduce 27
 
 
 state 83
-	statement : DEF ID LPAREN parameters RPAREN COLON statement_list . ENDEF  (4)
+	statement : CLASS ID LPAREN parameters . RPAREN COLON statements ENDCLS  (6)
 
-	ENDEF  shift 85
+	RPAREN  shift 92
 	.  error
 
 
 state 84
-	statement : IF expr COLON statement_list ELSE COLON statement_list . ENDIF  (5)
+	expr : expr DOT ID LPAREN . args_opt RPAREN  (24)
+	args_opt : .  (39)
 
-	ENDIF  shift 86
-	.  error
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	INT  shift 11
+	BOOL  shift 12
+	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
+	RPAREN  reduce 39
+
+	expr  goto 53
+	typ  goto 24
+	args_opt  goto 93
+	args  goto 55
 
 
 state 85
-	statement : DEF ID LPAREN parameters RPAREN COLON statement_list ENDEF .  (4)
+	expr : expr . PLUS expr  (21)
+	expr : expr . MINUS expr  (22)
+	expr : expr . DOT ID LPAREN args_opt RPAREN  (24)
+	expr : typ Id_catg ASSIGN expr .  (26)
+	expr : expr . EQ expr  (28)
+	expr : expr . NEQ expr  (29)
+	expr : expr . MUL expr  (30)
+	expr : expr . LT expr  (31)
+	expr : expr . GT expr  (32)
+	expr : expr . LTE expr  (33)
+	expr : expr . GTE expr  (34)
+
+	PLUS  shift 39
+	MINUS  shift 40
+	EQ  shift 41
+	NEQ  shift 42
+	LT  shift 43
+	GT  shift 44
+	LTE  shift 45
+	GTE  shift 46
+	MUL  shift 47
+	DOT  shift 48
+	LITERAL  reduce 26
+	BLIT  reduce 26
+	ID  reduce 26
+	LPAREN  reduce 26
+	RPAREN  reduce 26
+	COLON  reduce 26
+	COMMA  reduce 26
+	DEF  reduce 26
+	ENDEF  reduce 26
+	ELSE  reduce 26
+	IF  reduce 26
+	ENDIF  reduce 26
+	WHILE  reduce 26
+	NEXT  reduce 26
+	RETURN  reduce 26
+	INT  reduce 26
+	BOOL  reduce 26
+	ASSIGN  reduce 26
+	EOF  reduce 26
+	BREAK  reduce 26
+	CONTINUE  reduce 26
+	DEREF  reduce 26
+	ADDRESS_OF  reduce 26
+	RETAIN  reduce 26
+	CLASS  reduce 26
+	ENDCLS  reduce 26
+	RELEASE  reduce 26
+	SEP  reduce 26
+
+
+state 86
+	args : expr COMMA args .  (42)
+
+	.  reduce 42
+
+
+state 87
+	parameter_list : ID COMMA . parameter_list  (46)
+
+	ID  shift 77
+	.  error
+
+	parameter_list  goto 94
+
+
+state 88
+	statement : DEF ID LPAREN parameters RPAREN . COLON statements ENDEF  (4)
+
+	COLON  shift 95
+	.  error
+
+
+state 89
+	statement : IF expr COLON statements ELSE . COLON statements ENDIF  (5)
+
+	COLON  shift 96
+	.  error
+
+
+state 90
+	statement : IF expr COLON statements ENDIF .  (7)
+
+	.  reduce 7
+
+
+state 91
+	statement : WHILE expr COLON statements NEXT .  (8)
+
+	.  reduce 8
+
+
+state 92
+	statement : CLASS ID LPAREN parameters RPAREN . COLON statements ENDCLS  (6)
+
+	COLON  shift 97
+	.  error
+
+
+state 93
+	expr : expr DOT ID LPAREN args_opt . RPAREN  (24)
+
+	RPAREN  shift 98
+	.  error
+
+
+state 94
+	parameter_list : ID COMMA parameter_list .  (46)
+
+	.  reduce 46
+
+
+state 95
+	statement : DEF ID LPAREN parameters RPAREN COLON . statements ENDEF  (4)
+	statements : .  (2)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	DEF  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	RETURN  shift 10
+	INT  shift 11
+	BOOL  shift 12
+	BREAK  shift 13
+	CONTINUE  shift 14
+	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
+	CLASS  shift 18
+	RELEASE  shift 19
+	ENDEF  reduce 2
+
+	statements  goto 99
+	statement  goto 22
+	expr  goto 23
+	typ  goto 24
+
+
+state 96
+	statement : IF expr COLON statements ELSE COLON . statements ENDIF  (5)
+	statements : .  (2)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	DEF  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	RETURN  shift 10
+	INT  shift 11
+	BOOL  shift 12
+	BREAK  shift 13
+	CONTINUE  shift 14
+	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
+	CLASS  shift 18
+	RELEASE  shift 19
+	ENDIF  reduce 2
+
+	statements  goto 100
+	statement  goto 22
+	expr  goto 23
+	typ  goto 24
+
+
+state 97
+	statement : CLASS ID LPAREN parameters RPAREN COLON . statements ENDCLS  (6)
+	statements : .  (2)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	DEF  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	RETURN  shift 10
+	INT  shift 11
+	BOOL  shift 12
+	BREAK  shift 13
+	CONTINUE  shift 14
+	DEREF  shift 15
+	ADDRESS_OF  shift 16
+	RETAIN  shift 17
+	CLASS  shift 18
+	RELEASE  shift 19
+	ENDCLS  reduce 2
+
+	statements  goto 101
+	statement  goto 22
+	expr  goto 23
+	typ  goto 24
+
+
+state 98
+	expr : expr DOT ID LPAREN args_opt RPAREN .  (24)
+
+	.  reduce 24
+
+
+state 99
+	statement : DEF ID LPAREN parameters RPAREN COLON statements . ENDEF  (4)
+
+	ENDEF  shift 102
+	.  error
+
+
+state 100
+	statement : IF expr COLON statements ELSE COLON statements . ENDIF  (5)
+
+	ENDIF  shift 103
+	.  error
+
+
+state 101
+	statement : CLASS ID LPAREN parameters RPAREN COLON statements . ENDCLS  (6)
+
+	ENDCLS  shift 104
+	.  error
+
+
+state 102
+	statement : DEF ID LPAREN parameters RPAREN COLON statements ENDEF .  (4)
 
 	.  reduce 4
 
 
-state 86
-	statement : IF expr COLON statement_list ELSE COLON statement_list ENDIF .  (5)
+state 103
+	statement : IF expr COLON statements ELSE COLON statements ENDIF .  (5)
 
 	.  reduce 5
+
+
+state 104
+	statement : CLASS ID LPAREN parameters RPAREN COLON statements ENDCLS .  (6)
+
+	.  reduce 6
 
 
 State 5 contains 2 shift/reduce conflicts.
 
 
-35 terminals, 13 nonterminals
-45 grammar rules, 87 states
+42 terminals, 12 nonterminals
+48 grammar rules, 105 states

@@ -1,18 +1,18 @@
 type token =
   | LITERAL of (
-# 5 "parser.mly"
+# 5 "cobraparse.mly"
         int
-# 6 "parser.mli"
+# 6 "cobraparse.mli"
 )
   | BLIT of (
-# 6 "parser.mly"
+# 6 "cobraparse.mly"
         bool
-# 11 "parser.mli"
+# 11 "cobraparse.mli"
 )
   | ID of (
-# 7 "parser.mly"
+# 7 "cobraparse.mly"
         string
-# 16 "parser.mli"
+# 16 "cobraparse.mli"
 )
   | LPAREN
   | RPAREN
@@ -47,9 +47,6 @@ type token =
   | RETAIN
   | CLASS
   | ENDCLS
-  | DOT
-  | RELEASE
-  | SEP
 
 val program_rule :
   (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Ast.program

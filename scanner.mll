@@ -10,6 +10,8 @@ rule token = parse
 
   | "def" { DEF }
   | "endef" { ENDEF }
+  | "class"  {CLASS}
+  | "endcls" {ENDCLS}
 
   | "if" { IF }
   | "else" {ELSE }
@@ -37,7 +39,7 @@ rule token = parse
 
   | ['0'-'9']+ as l { LITERAL(int_of_string l) }
   | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as id { ID(id) }
-
+  | '.' {DOT}
   | '+' { PLUS }
   | '-' { MINUS }
   | '=' { ASSIGN }
@@ -51,10 +53,14 @@ rule token = parse
   | '(' { LPAREN }
   | ')' { RPAREN }
   | ',' { COMMA }
+  | ';' {SEP}
   | '&' {ADDRESS_OF}
   | "retain" {RETAIN}
+  | "release" {RELEASE}
   | "break" {BREAK}
   | "continue" {CONTINUE}
+
+
 
 
   | eof {EOF }

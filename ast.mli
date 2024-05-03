@@ -16,6 +16,7 @@ type typ =
 
 type id_catg = Id of string | PointerID of string
 type mem_type = Dref | Address_of | Retain
+type mem_ref = Release
 type expr =
   | Literal of int
   | BoolLit of bool
@@ -26,6 +27,7 @@ type expr =
   | Call of string * expr list
   | Memory_handler of mem_type * expr
   | AssignPointer of expr * expr
+  | Method of expr * string * expr list
 
 type stmt =
   | Expr of expr
@@ -33,8 +35,11 @@ type stmt =
   | While of expr * stmt list
   | Return of expr
   | Function of string * string list * stmt list
+  | Class of string * string list * stmt list
   | Break 
   | Continue
+  | Memory_ref of mem_ref * string
+
 
 type program = {
   locals: (typ * string) list;

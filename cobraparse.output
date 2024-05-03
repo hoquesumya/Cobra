@@ -1,0 +1,325 @@
+   0  $accept : %entry% $end
+
+   1  program_rule : statements EOF
+
+   2  statements : statement
+   3             | statement statements
+
+   4  statement : expr
+
+   5  statement_list : statement
+   6                 | statement statement_list
+
+   7  expr : LITERAL
+   8       | BLIT
+   9       | ID
+  10       | ID LPAREN args_opt RPAREN
+  11       | expr PLUS expr
+  12       | expr MINUS expr
+  13       | ID ASSIGN expr
+  14       | LPAREN expr RPAREN
+
+  15  args_opt :
+  16           | args
+
+  17  args : expr
+  18       | expr COMMA args
+
+  19  parameters :
+  20             | parameter_list
+
+  21  parameter_list : ID
+  22                 | ID COMMA parameter_list
+
+  23  %entry% : '\001' program_rule
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . program_rule  (23)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	.  error
+
+	program_rule  goto 7
+	statements  goto 8
+	statement  goto 9
+	expr  goto 10
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	expr : LITERAL .  (7)
+
+	.  reduce 7
+
+
+state 4
+	expr : BLIT .  (8)
+
+	.  reduce 8
+
+
+5: shift/reduce conflict (shift 11, reduce 9) on LPAREN
+state 5
+	expr : ID .  (9)
+	expr : ID . LPAREN args_opt RPAREN  (10)
+	expr : ID . ASSIGN expr  (13)
+
+	LPAREN  shift 11
+	ASSIGN  shift 12
+	LITERAL  reduce 9
+	BLIT  reduce 9
+	ID  reduce 9
+	RPAREN  reduce 9
+	COMMA  reduce 9
+	PLUS  reduce 9
+	MINUS  reduce 9
+	EOF  reduce 9
+
+
+state 6
+	expr : LPAREN . expr RPAREN  (14)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	.  error
+
+	expr  goto 13
+
+
+state 7
+	%entry% : '\001' program_rule .  (23)
+
+	.  reduce 23
+
+
+state 8
+	program_rule : statements . EOF  (1)
+
+	EOF  shift 14
+	.  error
+
+
+state 9
+	statements : statement .  (2)
+	statements : statement . statements  (3)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	EOF  reduce 2
+
+	statements  goto 15
+	statement  goto 9
+	expr  goto 10
+
+
+state 10
+	statement : expr .  (4)
+	expr : expr . PLUS expr  (11)
+	expr : expr . MINUS expr  (12)
+
+	PLUS  shift 16
+	MINUS  shift 17
+	LITERAL  reduce 4
+	BLIT  reduce 4
+	ID  reduce 4
+	LPAREN  reduce 4
+	EOF  reduce 4
+
+
+state 11
+	expr : ID LPAREN . args_opt RPAREN  (10)
+	args_opt : .  (15)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	RPAREN  reduce 15
+
+	expr  goto 18
+	args_opt  goto 19
+	args  goto 20
+
+
+state 12
+	expr : ID ASSIGN . expr  (13)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	.  error
+
+	expr  goto 21
+
+
+state 13
+	expr : expr . PLUS expr  (11)
+	expr : expr . MINUS expr  (12)
+	expr : LPAREN expr . RPAREN  (14)
+
+	RPAREN  shift 22
+	PLUS  shift 16
+	MINUS  shift 17
+	.  error
+
+
+state 14
+	program_rule : statements EOF .  (1)
+
+	.  reduce 1
+
+
+state 15
+	statements : statement statements .  (3)
+
+	.  reduce 3
+
+
+state 16
+	expr : expr PLUS . expr  (11)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	.  error
+
+	expr  goto 23
+
+
+state 17
+	expr : expr MINUS . expr  (12)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	.  error
+
+	expr  goto 24
+
+
+state 18
+	expr : expr . PLUS expr  (11)
+	expr : expr . MINUS expr  (12)
+	args : expr .  (17)
+	args : expr . COMMA args  (18)
+
+	COMMA  shift 25
+	PLUS  shift 16
+	MINUS  shift 17
+	RPAREN  reduce 17
+
+
+state 19
+	expr : ID LPAREN args_opt . RPAREN  (10)
+
+	RPAREN  shift 26
+	.  error
+
+
+state 20
+	args_opt : args .  (16)
+
+	.  reduce 16
+
+
+state 21
+	expr : expr . PLUS expr  (11)
+	expr : expr . MINUS expr  (12)
+	expr : ID ASSIGN expr .  (13)
+
+	PLUS  shift 16
+	MINUS  shift 17
+	LITERAL  reduce 13
+	BLIT  reduce 13
+	ID  reduce 13
+	LPAREN  reduce 13
+	RPAREN  reduce 13
+	COMMA  reduce 13
+	EOF  reduce 13
+
+
+state 22
+	expr : LPAREN expr RPAREN .  (14)
+
+	.  reduce 14
+
+
+state 23
+	expr : expr . PLUS expr  (11)
+	expr : expr PLUS expr .  (11)
+	expr : expr . MINUS expr  (12)
+
+	.  reduce 11
+
+
+state 24
+	expr : expr . PLUS expr  (11)
+	expr : expr . MINUS expr  (12)
+	expr : expr MINUS expr .  (12)
+
+	.  reduce 12
+
+
+state 25
+	args : expr COMMA . args  (18)
+
+	LITERAL  shift 3
+	BLIT  shift 4
+	ID  shift 5
+	LPAREN  shift 6
+	.  error
+
+	expr  goto 18
+	args  goto 27
+
+
+state 26
+	expr : ID LPAREN args_opt RPAREN .  (10)
+
+	.  reduce 10
+
+
+state 27
+	args : expr COMMA args .  (18)
+
+	.  reduce 18
+
+
+Rules never reduced:
+	statement_list : statement  (5)
+	statement_list : statement statement_list  (6)
+	parameters :  (19)
+	parameters : parameter_list  (20)
+	parameter_list : ID  (21)
+	parameter_list : ID COMMA parameter_list  (22)
+
+
+State 5 contains 1 shift/reduce conflict.
+
+
+39 terminals, 11 nonterminals
+24 grammar rules, 28 states

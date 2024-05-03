@@ -26,6 +26,8 @@ let string_of_id = function
   | Id (v) -> v
   | PointerID (v) -> "* "^v
 
+let string_of_mem_ref = function
+| Release -> "release"
 let rec string_of_expr = function
   | Literal(l) -> string_of_int l
   | BoolLit(true) -> "true"
@@ -37,6 +39,7 @@ let rec string_of_expr = function
   | Call(func, args) -> func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
   | Memory_handler (m,e) ->  string_of_memory m ^ string_of_expr e
   | AssignPointer (e1,e2) -> "*" ^ string_of_expr e1 ^"= "^ string_of_expr e2
+  | Method (e1,func,args) -> string_of_expr e1 ^"." ^ func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
 
 
 let rec string_of_stmt = function
@@ -45,10 +48,12 @@ let rec string_of_stmt = function
   | If(e, s1, Some s2) ->
     "if " ^ string_of_expr e ^ ":\n" ^ string_of_stmts s1 ^ "else:\n" ^ string_of_stmts s2
   | While(e, s) -> "while " ^ string_of_expr e ^ ":\n" ^ string_of_stmts s
-  | Return(expr) -> "return " ^ string_of_expr expr ^ ";"
+  | Return(expr) -> "return " ^ string_of_expr expr ^ ";\n"
   | Function(name, params, body) -> "def " ^ name ^ "(" ^ String.concat ", " params ^ "):\n" ^ string_of_stmts body
+  | Class (name, params,body) -> "class" ^ name ^ "(" ^ String.concat ", " params ^ "):\n   " ^ string_of_stmts body  ^"\nendcls"
   | Break -> "break"
   | Continue -> "continue"
+  |  Memory_ref (mem, v) -> string_of_mem_ref mem ^ v
 
 and string_of_stmts stmts =
   String.concat "\n" (List.map string_of_stmt stmts)
