@@ -40,6 +40,7 @@ let rec string_of_expr = function
   | Memory_handler (m,e) ->  string_of_memory m ^ string_of_expr e
   | AssignPointer (e1,e2) -> "*" ^ string_of_expr e1 ^"= "^ string_of_expr e2
   | Method (e1,func,args) -> string_of_expr e1 ^"." ^ func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
+  | Init_class (v1,v2, e) -> v1 ^":"^ v2 ^"= "^ string_of_expr e
 
 
 let rec string_of_stmt = function

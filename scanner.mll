@@ -53,7 +53,6 @@ rule token = parse
   | '(' { LPAREN }
   | ')' { RPAREN }
   | ',' { COMMA }
-  | ';' {SEP}
   | '&' {ADDRESS_OF}
   | "retain" {RETAIN}
   | "release" {RELEASE}

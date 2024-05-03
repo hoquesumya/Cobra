@@ -28,6 +28,7 @@ type expr =
   | Memory_handler of mem_type * expr
   | AssignPointer of expr * expr
   | Method of expr * string * expr list
+  | Init_class of string * string * expr
 
 type stmt =
   | Expr of expr

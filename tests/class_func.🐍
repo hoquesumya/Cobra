@@ -12,8 +12,8 @@ class DellMouse(Mouse):
     int a = 10
     int *buf = &a
     def move (x,y):
-        *buf = x
-        *(buf+1)
+        *buf= x
+        y = *(buf+1)
     endef
 endcls
 
@@ -34,3 +34,4 @@ endcls
  int *a = &x
  *a = x+5
  print(x)
+ mouse : Mouse = DellMouse()

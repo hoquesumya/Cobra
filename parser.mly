@@ -6,9 +6,8 @@ open Ast
 %token <bool> BLIT
 %token <string> ID
 %token LPAREN RPAREN COLON COMMA DEF ENDEF ELSE IF ENDIF WHILE NEXT RETURN INT BOOL PLUS MINUS ASSIGN EQ NEQ LT GT LTE GTE EOF
-%token BREAK CONTINUE DEREF POINTER MUL  ADDRESS_OF RETAIN CLASS ENDCLS DOT RELEASE SEP
+%token BREAK CONTINUE DEREF POINTER MUL  ADDRESS_OF RETAIN CLASS ENDCLS DOT RELEASE EOL
 
-%left COLON
 %right ASSIGN 
 %left DOT
 %left EQ NEQ
@@ -17,7 +16,7 @@ open Ast
 %left MUL
 %right ADDRESS_OF
 %right DEREF RETAIN
-
+%left EOL
 
 %nonassoc LPAREN
 %nonassoc RPAREN
@@ -41,7 +40,7 @@ statement:
   | IF expr COLON statements ENDIF { If ($2, $4, None) }
   | WHILE expr COLON statements NEXT { While ($2, $4) }
   | RETURN expr { Return $2 }
-  | expr SEP{ Expr $1 }
+  | expr{ Expr $1 }
   | BREAK {Break}
   | CONTINUE {Continue}
   | RELEASE ID {Memory_ref (Release,$2)}
@@ -50,6 +49,7 @@ statement:
 typ:
   | BOOL {Bool}
   | INT {Int}
+
 
 Id_catg:
  ID { Id $1}
@@ -61,6 +61,7 @@ expr:
   | expr PLUS expr { Binop ($1, Add, $3) }
   | expr MINUS expr { Binop ($1, Sub, $3) }
   | ID ASSIGN expr { Assign ($1, $3) }
+  | ID COLON ID ASSIGN expr { Init_class($1, $3, $5) }
   | expr DOT ID LPAREN args_opt RPAREN {Method ($1, $3, $5)}
   | LPAREN expr RPAREN {$2} 
   | typ Id_catg ASSIGN expr {AssignVar ($1, $2,$4)}
