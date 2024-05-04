@@ -11,6 +11,9 @@ type bop =
   | LessEq
   | GreaterEq
 
+type uop =
+  | Negate
+
 type typ =
   | Int
   | Bool
@@ -20,6 +23,7 @@ type expr =
   | BoolLit of bool
   | Var of string
   | Binop of expr * bop * expr
+  | Unop of uop * expr
   | Assign of string * expr
   | Call of string * expr list
 
