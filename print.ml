@@ -1,5 +1,6 @@
 open Ast
 
+(* String representation of binary operators *)
 let string_of_op = function
   | Add -> "+"
   | Sub -> "-"
@@ -13,6 +14,12 @@ let string_of_op = function
   | GreaterEq -> ">="
   | Assign -> "="
 
+let string_of_typ = function
+  | Int -> "int"
+  | Bool -> "bool"
+  | IntPtr -> "int*"
+  | BoolPtr -> "bool*"
+
 let string_of_uop = function
   | Negate -> "-"
 
@@ -23,15 +30,19 @@ let rec string_of_expr = function
   | Var(s) -> s
   | Binop(e1, o, e2) ->
       "(" ^ string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2 ^ ")"
-  | Unop(o, e) -> string_of_uop o ^ "(" ^ string_of_expr e ^ ")"  (* Unary operation with parenthesis for clarity *)
+  | Unop(o, e) -> string_of_uop o ^ "(" ^ string_of_expr e ^ ")"
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(func, args) ->
       func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
+  | Ref(e) -> "(&" ^ string_of_expr e ^ ")"
+  | Deref(e) -> "(*" ^ string_of_expr e ^ ")"
 
+(* Helper function to indent lines for structured output *)
 let indent_lines indent text =
   let prefix = String.make (2 * indent) ' ' in
   String.concat "\n" (List.map (fun line -> prefix ^ line) (String.split_on_char '\n' text))
 
+(* Recursive function to construct string representation of statements *)
 let rec string_of_stmt indent = function
   | Expr(expr) -> indent_lines indent (string_of_expr expr ^ ";")
   | If(e, s1, None) ->
@@ -47,16 +58,24 @@ let rec string_of_stmt indent = function
     string_of_stmts (indent + 1) s
   | Return(expr) -> indent_lines indent ("return " ^ string_of_expr expr ^ ";")
   | Function(name, params, body) ->
-    indent_lines indent ("def " ^ name ^ "(" ^ String.concat ", " params ^ "):") ^ "\n" ^
+    let params_str = params |> List.map (fun p ->
+      match p.param_type with
+      | Some ty -> string_of_typ ty ^ " " ^ p.param_name
+      | None -> p.param_name  (* Omit type information if None *)
+    ) |> String.concat ", " in
+    indent_lines indent ("def " ^ name ^ "(" ^ params_str ^ "):") ^ "\n" ^
     string_of_stmts (indent + 1) body
+  | Decl(ty_opt, name) ->
+    let type_str = match ty_opt with
+      | Some ty -> string_of_typ ty ^ " "
+      | None -> ""  (* Optionally omit type or provide a default *)
+    in
+    indent_lines indent (type_str ^ name ^ ";")
 
+(* String representation of blocks of statements *)
 and string_of_stmts indent block =
   match block with
   | Block(stmts) -> String.concat "\n" (List.map (string_of_stmt indent) stmts)
-
-let string_of_typ = function
-  | Int -> "int"
-  | Bool -> "bool"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";"
 

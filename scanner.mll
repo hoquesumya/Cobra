@@ -16,6 +16,8 @@ rule token = parse
   | "return" { RETURN }
   | "int" { INT }
   | "bool" { BOOL }
+  | "int*" { INTPTR }
+  | "bool*" { BOOLPTR }
   | "true" { BLIT(true) }
   | "false" { BLIT(false) }
 
@@ -37,6 +39,7 @@ rule token = parse
   | '(' { LPAREN }
   | ')' { RPAREN }
   | ',' { COMMA }
+  | '&' { AMP }
 
   | eof {EOF }
   | _ as c { 

@@ -1,0 +1,9 @@
+int* x
+bool* y
+
+int g
+bool h
+
+def foo(int a, int b, int* c, bool* d):
+	return &b
+endef
