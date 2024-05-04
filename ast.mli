@@ -1,6 +1,8 @@
 type bop =
   | Add
   | Sub
+  | Mult
+  | Div
   | Assign
   | Equal
   | Neq

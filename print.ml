@@ -3,6 +3,8 @@ open Ast
 let string_of_op = function
   | Add -> "+"
   | Sub -> "-"
+  | Mult -> "*"
+  | Div -> "/"
   | Equal -> "=="
   | Neq -> "!="
   | Less -> "<"

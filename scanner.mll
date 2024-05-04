@@ -22,6 +22,8 @@ rule token = parse
   | ['0'-'9']+ as l { LITERAL(int_of_string l) }
   | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as id { ID(id) }
 
+  | '*' { STAR }
+  | '/' { DIV }
   | '+' { PLUS }
   | '-' { MINUS }
   | '=' { ASSIGN }
