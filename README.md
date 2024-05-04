@@ -30,6 +30,16 @@ docker run -v $(pwd)/tests:/app/tests -it cobra /bin/bash
 ./cobra < ./tests/full.🐍
 ```
 
+## Testing
+
+Validation is run against files in `./tests` which are then printed to stdout when successful.
+
+If parsing fails the following error is thrown: `Fatal error: exception Stdlib.Parsing.Parse_error`
+
+```
+./test.sh
+```
+
 ## Contributing
 
 For more complete instructions on contributing to Cobra development, see the [Developer Guide](./CONTRIBUTING.md).

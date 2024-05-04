@@ -31,7 +31,12 @@ let rec string_of_expr = function
   | Binop(e1, o, e2) ->
       "(" ^ string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2 ^ ")"
   | Unop(o, e) -> string_of_uop o ^ "(" ^ string_of_expr e ^ ")"
-  | Assign(v, e) -> v ^ " = " ^ string_of_expr e
+  | Assign(ty_opt, v, e) ->
+    let type_str = match ty_opt with
+      | Some ty -> string_of_typ ty ^ " "
+      | None -> ""  (* Optionally omit type or provide a default *)
+    in
+    v ^ " = " ^ type_str ^ string_of_expr e
   | Call(func, args) ->
       func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
   | Ref(e) -> "(&" ^ string_of_expr e ^ ")"

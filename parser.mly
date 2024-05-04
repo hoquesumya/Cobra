@@ -65,7 +65,8 @@ expr:
   | expr LTE expr { Binop ($1, LessEq, $3) }
   | expr GT expr { Binop ($1, Greater, $3) }
   | expr GTE expr { Binop ($1, GreaterEq, $3) }
-  | ID ASSIGN expr { Assign ($1, $3) }
+  | ID ASSIGN expr { Assign (None, $1, $3) }
+  | opt_typ ID ASSIGN expr { Assign ($1, $2, $4) }
   | LPAREN expr RPAREN { $2 }
   | MINUS expr %prec UNARY { Unop (Negate, $2) }
   | AMP expr %prec UNARY { Ref $2 }
