@@ -23,12 +23,14 @@ type expr =
 
 type stmt =
   | Expr of expr
-  | If of expr * stmt list * (stmt list option)
-  | While of expr * stmt list
+  | If of expr * block * block option
+  | While of expr * block
   | Return of expr
-  | Function of string * string list * stmt list
+  | Function of string * string list * block
+
+and block = Block of stmt list  (* Define Block as a distinct type wrapping a list of statements *)
 
 type program = {
   locals: (typ * string) list;
-  body: stmt list;
+  body: block;
 }

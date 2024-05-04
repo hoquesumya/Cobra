@@ -13,19 +13,22 @@ open Ast
 %%
 
 program_rule:
-  | statements EOF { { locals = []; body = $1 } }
+  | statements EOF { { locals = []; body = Block $1 } }
 
 statements:
   | statement { [$1] }
   | statement statements { $1 :: $2 }
 
 statement:
-  | DEF ID parameters COLON statement_list ENDEF { Function ($2, $3, $5) }
-  | IF expr COLON statement_list ELSE COLON statement_list ENDIF { If ($2, $4, Some($7)) }
-  | IF expr COLON statement_list ENDIF { If ($2, $4, None) }
-  | WHILE expr COLON statement_list NEXT { While ($2, $4) }
+  | DEF ID parameters COLON block ENDEF { Function ($2, $3, $5) }
+  | IF expr COLON block ENDIF { If ($2, $4, None) }
+  | IF expr COLON block ELSE COLON block ENDIF { If ($2, $4, Some($7)) }
+  | WHILE expr COLON block NEXT { While ($2, $4) }
   | RETURN expr { Return $2 }
   | expr { Expr $1 }
+
+block:
+  | statement_list { Block $1 }  // Construct Block here
 
 statement_list:
   | statement { [$1] }
