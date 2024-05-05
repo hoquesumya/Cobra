@@ -1,7 +1,6 @@
 type bop =
   | Add
   | Sub
-  | Assign
   | Equal
   | Neq
   | Less
@@ -16,7 +15,14 @@ type typ =
 
 type id_catg = Id of string | PointerID of string
 type mem_type = Dref | Address_of | Retain
-type mem_ref = Release
+type mem_ref = Release | Makeman
+
+type expr1=
+  Var1 of string
+  | Binop1 of expr1 * bop * expr1
+  | Literal1 of int
+  |  Memory_handler1 of mem_type * expr1
+
 type expr =
   | Literal of int
   | BoolLit of bool
@@ -25,8 +31,9 @@ type expr =
   | Assign of string * expr
   | AssignVar of typ * id_catg * expr
   | Call of string * expr list
-  | Memory_handler of mem_type * expr
-  | AssignPointer of expr * expr
+  | Memory_handler of mem_type * expr1
+  | Memory_handler' of mem_type * expr
+  | AssignPointer of mem_type * expr1 * expr
   | Method of expr * string * expr list
   | Init_class of string * string * expr
 
