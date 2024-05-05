@@ -9,7 +9,6 @@ let string_of_op = function
   | Greater -> ">"
   | LessEq -> "<="
   | GreaterEq -> ">="
-  | Assign -> "="
   | Mul -> "*"
 
 let string_of_memory = function
@@ -28,6 +27,14 @@ let string_of_id = function
 
 let string_of_mem_ref = function
 | Release -> "release"
+| Makeman -> "makeManual"
+
+let rec string_of_expr1 = function
+  |  Var1(s) -> s
+  |  Binop1(e1, o, e2) -> string_of_expr1 e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr1 e2
+  |  Memory_handler1 (m,e) ->  string_of_memory m ^ string_of_expr1 e
+  | Literal1(l)-> string_of_int l
+
 let rec string_of_expr = function
   | Literal(l) -> string_of_int l
   | BoolLit(true) -> "true"
@@ -37,10 +44,12 @@ let rec string_of_expr = function
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | AssignVar (t,v, e) -> string_of_typ t  ^ " "^ string_of_id v ^ " = " ^ string_of_expr e
   | Call(func, args) -> func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
-  | Memory_handler (m,e) ->  string_of_memory m ^ string_of_expr e
-  | AssignPointer (e1,e2) -> "*" ^ string_of_expr e1 ^"= "^ string_of_expr e2
+  | Memory_handler (m,e) ->  string_of_memory m ^ string_of_expr1 e
+  | Memory_handler' (m,e) ->  string_of_memory m ^ string_of_expr e
+  | AssignPointer (m,e1,e2) ->  string_of_memory m ^ string_of_expr1 e1 ^"= "^ string_of_expr e2
   | Method (e1,func,args) -> string_of_expr e1 ^"." ^ func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
   | Init_class (v1,v2, e) -> v1 ^":"^ v2 ^"= "^ string_of_expr e
+
 
 
 let rec string_of_stmt = function
@@ -54,7 +63,7 @@ let rec string_of_stmt = function
   | Class (name, params,body) -> "class" ^ name ^ "(" ^ String.concat ", " params ^ "):\n   " ^ string_of_stmts body  ^"\nendcls"
   | Break -> "break"
   | Continue -> "continue"
-  |  Memory_ref (mem, v) -> string_of_mem_ref mem ^ v
+  | Memory_ref (mem, v) -> string_of_mem_ref mem ^ v
 
 and string_of_stmts stmts =
   String.concat "\n" (List.map string_of_stmt stmts)
