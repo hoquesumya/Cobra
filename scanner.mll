@@ -2,7 +2,6 @@
 
 let typ = ref false
 
-
 }
 
 rule token = parse
@@ -12,6 +11,9 @@ rule token = parse
   | "endef" { ENDEF }
   | "class"  {CLASS}
   | "endcls" {ENDCLS}
+  | "release" {RELEASE}
+  | "makeManual" {MAKEMAN}
+  | "retain" {RETAIN}
 
   | "if" { IF }
   | "else" {ELSE }
@@ -53,14 +55,11 @@ rule token = parse
   | '(' { LPAREN }
   | ')' { RPAREN }
   | ',' { COMMA }
+  | ';' {SEMI}
   | "::" {COLON_D}
   | '&' {ADDRESS_OF}
-  | "release" {RELEASE}
   | "break" {BREAK}
   | "continue" {CONTINUE}
-  | "makeManual" {MAKEMAN}
-  | ';' {SEMI}
-  |"retain" {RETAIN}
 
 
   | eof {EOF }

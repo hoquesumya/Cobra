@@ -14,7 +14,7 @@ let string_of_op = function
 let string_of_memory = function
  | Dref ->"*"
  | Address_of -> "&"
- | Retain ->"retain"
+ | Retain ->"retain "
 
 let string_of_typ = function
   | Int -> "int"
@@ -26,8 +26,8 @@ let string_of_id = function
   | PointerID (v) -> "* "^v
 
 let string_of_mem_ref = function
-| Release -> "release"
-| Makeman -> "makeManual"
+| Release -> "release "
+| Makeman -> "makeManual "
 
 let rec string_of_expr1 = function
   |  Var1(s) -> s
@@ -63,7 +63,7 @@ let rec string_of_stmt = function
   | Class (name, params,body) -> "class" ^ name ^ "(" ^ String.concat ", " params ^ "):\n   " ^ string_of_stmts body  ^"\nendcls"
   | Break -> "break"
   | Continue -> "continue"
-  | Memory_ref (mem, v) -> string_of_mem_ref mem ^ v
+  | Memory_ref (mem, v) -> string_of_mem_ref mem ^ v ^";"
 
 and string_of_stmts stmts =
   String.concat "\n" (List.map string_of_stmt stmts)
