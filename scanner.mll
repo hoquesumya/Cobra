@@ -42,7 +42,7 @@ rule token = parse
   | '.' {DOT}
   | '+' { PLUS }
   | '-' { MINUS }
-  | '=' { ASSIGN }
+  | '=' {  typ :=false; ASSIGN }
   | "==" { EQ }
   | "!=" { NEQ }
   | '<' { LT }
@@ -53,13 +53,14 @@ rule token = parse
   | '(' { LPAREN }
   | ')' { RPAREN }
   | ',' { COMMA }
+  | "::" {COLON_D}
   | '&' {ADDRESS_OF}
-  | "retain" {RETAIN}
   | "release" {RELEASE}
   | "break" {BREAK}
   | "continue" {CONTINUE}
-
-
+  | "makeManual" {MAKEMAN}
+  | ';' {SEMI}
+  |"retain" {RETAIN}
 
 
   | eof {EOF }
