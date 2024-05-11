@@ -1,4 +1,4 @@
-def add_typed(int x, int y) -> int:
+def add_typed(x: int, y: int) -> int:
   return x + y
 endef
 

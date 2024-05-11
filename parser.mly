@@ -100,5 +100,8 @@ parameters:
   | LPAREN parameter_list RPAREN { $2 }
 
 parameter_list:
-  | opt_typ ID { [{ param_type = $1; param_name = $2 }] }
-  | opt_typ ID COMMA parameter_list { { param_type = $1; param_name = $2 } :: $4 }
+  | ID COLON typ { [{ param_type = Some($3); param_name = $1 }] }
+  | ID COLON typ COMMA parameter_list { { param_type = Some($3); param_name = $1 } :: $5 }
+
+  | ID { [{ param_type = None; param_name = $1 }] }
+  | ID COMMA parameter_list { { param_type = None; param_name = $1 } :: $3 }
