@@ -54,7 +54,7 @@ and stmt =
   | If of expr * block * block option
   | While of expr * block
   | Return of expr
-  | Function of string * param list * block
+  | Function of string * param list * typ option * block
   | Decl of typ option * string
   | ClassDecl of class_decl
 

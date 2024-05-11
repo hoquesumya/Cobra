@@ -1,8 +1,14 @@
+def add_typed(int x, int y) -> int:
+  return x + y
+endef
+
 def add(x, y):
   return x + y
 endef
+
 
 a = 5
 b = a + 3
 
 result = add(a, b)
+result2 = add_typed(a, b)

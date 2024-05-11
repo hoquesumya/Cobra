@@ -50,6 +50,7 @@ rule token = parse
   | ',' { COMMA }
   | '&' { AMP }
   | '.' { DOT }
+  | "->" { ARROW }
 
   | eof { EOF }
   | _ as c { 

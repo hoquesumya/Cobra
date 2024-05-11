@@ -71,13 +71,16 @@ let rec string_of_stmt indent = function
     indent_lines indent ("while " ^ string_of_expr e ^ ":") ^ "\n" ^
     string_of_stmts (indent + 1) s
   | Return(expr) -> indent_lines indent ("return " ^ string_of_expr expr ^ ";\n")
-  | Function(name, params, body) ->
+  | Function(name, params, rtyp, body) ->
     let params_str = params |> List.map (fun p ->
       match p.param_type with
       | Some ty -> string_of_typ ty ^ " " ^ p.param_name
       | None -> p.param_name  (* Omit type information if None *)
     ) |> String.concat ", " in
-    indent_lines indent ("def " ^ name ^ "(" ^ params_str ^ "):") ^ "\n" ^
+    let rtyp_str = match rtyp with
+      | Some ty -> "->" ^ string_of_typ ty
+      | None -> "" in
+    indent_lines indent ("def " ^ name ^ "(" ^ params_str ^ ")" ^ rtyp_str ^ ":") ^ "\n" ^
     string_of_stmts (indent + 1) body
   | Decl(ty_opt, name) ->
     let type_str = match ty_opt with

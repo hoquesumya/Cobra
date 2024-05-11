@@ -6,7 +6,7 @@ open Ast
 %token <bool> BLIT
 %token RELEASE AUTORELEASE RETAIN
 %token <string> ID
-%token LPAREN RPAREN COLON COMMA DEF ENDEF ELSE IF ENDIF WHILE NEXT RETURN INT BOOL INTPTR BOOLPTR PLUS MINUS ASSIGN EQ NEQ LT GT LTE GTE EOF STAR DIV AMP NEWLINE CLASS ENDCLASS DOT
+%token LPAREN RPAREN COLON COMMA DEF ENDEF ELSE IF ENDIF WHILE NEXT RETURN INT BOOL INTPTR BOOLPTR PLUS MINUS ASSIGN EQ NEQ LT GT LTE GTE EOF STAR DIV AMP NEWLINE CLASS ENDCLASS DOT ARROW
 
 %right ASSIGN
 %right UNARY
@@ -34,7 +34,8 @@ statement_newline:
 statement:
   | CLASS ID LPAREN ID RPAREN COLON NEWLINE block ENDCLASS { ClassDecl {class_name = $2; superclass = Some $4; class_body = $8} }
   | CLASS ID COLON NEWLINE block ENDCLASS { ClassDecl {class_name = $2; superclass = None; class_body = $5} }
-  | DEF ID parameters COLON NEWLINE block ENDEF { Function ($2, $3, $6) }
+  | DEF ID parameters ARROW typ COLON NEWLINE block ENDEF { Function ($2, $3, Some($5), $8) }
+  | DEF ID parameters COLON NEWLINE block ENDEF { Function ($2, $3, None, $6) }
   | IF expr COLON NEWLINE block ENDIF { If ($2, $5, None) }
   | IF expr COLON NEWLINE block ELSE COLON NEWLINE block ENDIF { If ($2, $5, Some($9)) }
   | WHILE expr COLON NEWLINE block NEXT { While ($2, $5) }
