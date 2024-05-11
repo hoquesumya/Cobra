@@ -15,6 +15,9 @@ rule token = parse
   | "while" { WHILE }
   | "next" { NEXT }
 
+  | "class" { CLASS }
+  | "endclass" { ENDCLASS }
+
   | "return" { RETURN }
   | "int" { INT }
   | "bool" { BOOL }
@@ -42,6 +45,7 @@ rule token = parse
   | ')' { RPAREN }
   | ',' { COMMA }
   | '&' { AMP }
+  | '.' { DOT }
 
   | eof { EOF }
   | _ as c { 

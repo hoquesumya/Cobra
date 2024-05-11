@@ -41,6 +41,8 @@ let rec string_of_expr = function
       func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
   | Ref(e) -> "(&" ^ string_of_expr e ^ ")"
   | Deref(e) -> "(*" ^ string_of_expr e ^ ")"
+  | ObjectCall(obj, meth, args) ->
+    string_of_expr obj ^ "." ^ meth ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
 
 (* Helper function to indent lines for structured output *)
 let indent_lines indent text =
@@ -76,6 +78,13 @@ let rec string_of_stmt indent = function
       | None -> ""  (* Optionally omit type or provide a default *)
     in
     indent_lines indent (type_str ^ name ^ ";")
+  | ClassDecl cd ->
+    let superclass_str = match cd.superclass with
+      | Some sc -> "(" ^ sc ^ ")"
+      | None -> ""
+    in
+    indent_lines indent ("class " ^ cd.class_name ^ superclass_str ^ ":") ^ "\n" ^
+    string_of_stmts (indent + 1) cd.class_body
 
 (* String representation of blocks of statements *)
 and string_of_stmts indent block =

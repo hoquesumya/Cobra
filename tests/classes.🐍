@@ -1,0 +1,30 @@
+class Mouse:
+  int x = 0
+  def move(x, y):
+    x = x+1
+    y = y-1
+  endef
+endclass
+
+class DellMouse(Mouse):
+  int x = 0
+  def move(x, y):
+    x = x+1
+    y = y-1
+  endef
+endclass
+
+
+class Handle_fibo:
+  int x = 10
+  def fibonacci_recursive(n):
+    if n <= 1:
+      return n
+    else:
+      return fibonacci_recursive(n-1) + fibonacci_recursive(n-2)
+	  endif
+  endef
+endclass
+
+fibo = Handle_fibo()
+fibo.fibonacci_recursive(4)
