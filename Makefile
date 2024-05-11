@@ -1,4 +1,4 @@
-cobra : parser.cmo scanner.cmo print.cmo cobra.cmo
+cobra : parser.cmo scanner.cmo print.cmo sast.cmo semant.cmo cobra.cmo
 	ocamlc -w A -o cobra $^
 
 %.cmo : %.ml
@@ -13,14 +13,18 @@ scanner.ml : scanner.mll
 parser.ml parser.mli : parser.mly
 	ocamlyacc $^
 
-cobra.cmo : scanner.cmo parser.cmi ast.cmi print.cmo
-cobra.cmx : scanner.cmx parser.cmx ast.cmi print.cmx
+cobra.cmo : scanner.cmo parser.cmi ast.cmi sast.cmi semant.cmi print.cmo
+cobra.cmx : scanner.cmx parser.cmx ast.cmi sast.cmi semant.cmi print.cmx
 parser.cmo : ast.cmi parser.cmi
 parser.cmx : ast.cmi parser.cmi
 scanner.cmo : parser.cmi
 scanner.cmx : parser.cmx
-print.cmo : ast.cmi
-print.cmx : ast.cmi
+print.cmo : ast.cmi sast.cmi
+print.cmx : ast.cmi sast.cmx
+sast.cmo : ast.cmi
+sast.cmx : ast.cmx
+semant.cmo : sast.cmi ast.cmi
+semant.cmx : sast.cmx ast.cmx
 
 format:
 	find . -name '*.ml' -or -name '*.mli' | xargs ocamlformat -i
