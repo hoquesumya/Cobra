@@ -10,12 +10,16 @@ let check (locals, body) =
   (* local check binds *)
   (* check function *)
   let check_bool_expr
-
+    
   in
   
   let check_assign = 
 
   in
+
+  let find_func fname = 
+
+  in 
 
   (*TO DO STILL*)
   let type_of_identifier = function
@@ -58,8 +62,8 @@ let check (locals, body) =
           in
           (t, SBinop((t1, e1'), op, (t2, e2')))
         else raise (Failure err)
-    | Call(fname, args) -> 
-
+    | Call(fname, args) as call -> 
+      (*FIGURE OUT FUNCTION CALLING*)
   in
 
   let check_function 
