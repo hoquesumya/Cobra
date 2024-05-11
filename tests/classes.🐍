@@ -28,3 +28,9 @@ endclass
 
 fibo = Handle_fibo()
 fibo.fibonacci_recursive(4)
+
+retain(fibo)
+
+release(fibo)
+
+autorelease(fibo)

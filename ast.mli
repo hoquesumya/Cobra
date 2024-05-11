@@ -20,6 +20,11 @@ type typ =
   | IntPtr
   | BoolPtr
 
+type memoryOp =
+  | Release
+  | AutoRelease
+  | Retain
+
 type expr =
   | Literal of int
   | BoolLit of bool
@@ -31,6 +36,7 @@ type expr =
   | Ref of expr
   | Deref of expr 
   | ObjectCall of expr * string * expr list
+  | MemoryOp of expr * memoryOp
 
 type param = {
   param_type : typ option;

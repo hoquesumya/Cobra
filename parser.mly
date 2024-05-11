@@ -4,6 +4,7 @@ open Ast
 
 %token <int> LITERAL
 %token <bool> BLIT
+%token RELEASE AUTORELEASE RETAIN
 %token <string> ID
 %token LPAREN RPAREN COLON COMMA DEF ENDEF ELSE IF ENDIF WHILE NEXT RETURN INT BOOL INTPTR BOOLPTR PLUS MINUS ASSIGN EQ NEQ LT GT LTE GTE EOF STAR DIV AMP NEWLINE CLASS ENDCLASS DOT
 
@@ -80,6 +81,9 @@ expr:
   | MINUS expr %prec UNARY { Unop (Negate, $2) }
   | AMP expr %prec UNARY { Ref $2 }
   | STAR ID %prec UNARY { Deref(Var($2)) }
+  | RELEASE LPAREN expr RPAREN { MemoryOp($3, Release) }
+  | AUTORELEASE LPAREN expr RPAREN { MemoryOp($3, AutoRelease) }
+  | RETAIN LPAREN expr RPAREN { MemoryOp($3, Retain) }
   | ID args { Call($1, $2) }
 
 args:

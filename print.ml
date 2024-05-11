@@ -23,6 +23,11 @@ let string_of_typ = function
 let string_of_uop = function
   | Negate -> "-"
 
+let string_of_memory_op = function
+| Release -> "release"
+| AutoRelease -> "autorelease"
+| Retain -> "retain"
+
 let rec string_of_expr = function
   | Literal(l) -> string_of_int l
   | BoolLit(true) -> "true"
@@ -43,6 +48,8 @@ let rec string_of_expr = function
   | Deref(e) -> "(*" ^ string_of_expr e ^ ")"
   | ObjectCall(obj, meth, args) ->
     string_of_expr obj ^ "." ^ meth ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
+  | MemoryOp(obj, meth) ->
+    string_of_memory_op meth ^ " " ^ string_of_expr obj
 
 (* Helper function to indent lines for structured output *)
 let indent_lines indent text =
@@ -51,7 +58,7 @@ let indent_lines indent text =
 
 (* Recursive function to construct string representation of statements *)
 let rec string_of_stmt indent = function
-  | Expr(expr) -> indent_lines indent (string_of_expr expr ^ ";")
+  | Expr(expr) -> indent_lines indent (string_of_expr expr ^ ";\n")
   | If(e, s1, None) ->
     indent_lines indent ("if " ^ string_of_expr e ^ ":") ^ "\n" ^
     string_of_stmts (indent + 1) s1
@@ -63,7 +70,7 @@ let rec string_of_stmt indent = function
   | While(e, s) ->
     indent_lines indent ("while " ^ string_of_expr e ^ ":") ^ "\n" ^
     string_of_stmts (indent + 1) s
-  | Return(expr) -> indent_lines indent ("return " ^ string_of_expr expr ^ ";")
+  | Return(expr) -> indent_lines indent ("return " ^ string_of_expr expr ^ ";\n")
   | Function(name, params, body) ->
     let params_str = params |> List.map (fun p ->
       match p.param_type with
@@ -77,7 +84,7 @@ let rec string_of_stmt indent = function
       | Some ty -> string_of_typ ty ^ " "
       | None -> ""  (* Optionally omit type or provide a default *)
     in
-    indent_lines indent (type_str ^ name ^ ";")
+    indent_lines indent (type_str ^ name ^ ";\n")
   | ClassDecl cd ->
     let superclass_str = match cd.superclass with
       | Some sc -> "(" ^ sc ^ ")"
@@ -91,7 +98,7 @@ and string_of_stmts indent block =
   match block with
   | Block(stmts) -> String.concat "\n" (List.map (string_of_stmt indent) stmts)
 
-let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";"
+let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
 let string_of_program fdecl =
   "Parsed program:\n" ^
