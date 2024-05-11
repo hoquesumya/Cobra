@@ -1,7 +1,9 @@
 { open Parser }
 
 rule token = parse
-  | [' ' '\n' '\t' ]* { token lexbuf }
+  | [' ' '\t' ]* { token lexbuf }
+
+  | ['\n']+ { NEWLINE }
 
   | "def" { DEF }
   | "endef" { ENDEF }
@@ -41,7 +43,7 @@ rule token = parse
   | ',' { COMMA }
   | '&' { AMP }
 
-  | eof {EOF }
+  | eof { EOF }
   | _ as c { 
       let char_info = "Illegal character: " ^ Char.escaped c in
       print_endline char_info;

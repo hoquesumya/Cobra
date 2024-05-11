@@ -36,7 +36,7 @@ let rec string_of_expr = function
       | Some ty -> string_of_typ ty ^ " "
       | None -> ""  (* Optionally omit type or provide a default *)
     in
-    v ^ " = " ^ type_str ^ string_of_expr e
+    string_of_expr v ^ " = " ^ type_str ^ string_of_expr e
   | Call(func, args) ->
       func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
   | Ref(e) -> "(&" ^ string_of_expr e ^ ")"

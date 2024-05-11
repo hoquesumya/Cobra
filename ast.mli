@@ -26,7 +26,7 @@ type expr =
   | Var of string
   | Binop of expr * bop * expr
   | Unop of uop * expr
-  | Assign of typ option * string * expr
+  | Assign of typ option * expr * expr
   | Call of string * expr list
   | Ref of expr
   | Deref of expr 

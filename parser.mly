@@ -5,9 +5,10 @@ open Ast
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID
-%token LPAREN RPAREN COLON COMMA DEF ENDEF ELSE IF ENDIF WHILE NEXT RETURN INT BOOL INTPTR BOOLPTR PLUS MINUS ASSIGN EQ NEQ LT GT LTE GTE EOF STAR DIV AMP
+%token LPAREN RPAREN COLON COMMA DEF ENDEF ELSE IF ENDIF WHILE NEXT RETURN INT BOOL INTPTR BOOLPTR PLUS MINUS ASSIGN EQ NEQ LT GT LTE GTE EOF STAR DIV AMP NEWLINE
 
 %right ASSIGN
+%right UNARY
 %left EQ NEQ LT LTE GT GTE
 %left PLUS MINUS
 %left STAR DIV
@@ -22,24 +23,28 @@ program_rule:
   | statements EOF { { locals = []; body = Block $1 } }
 
 statements:
-  | statement { [$1] }
-  | statement statements { $1 :: $2 }
+  | statement_newline { [$1] }
+  | statement_newline statements { $1 :: $2 }
+
+statement_newline:
+  | statement { $1 }
+  | statement NEWLINE { $1 }
 
 statement:
-  | DEF ID parameters COLON block ENDEF { Function ($2, $3, $5) }
-  | IF expr COLON block ENDIF { If ($2, $4, None) }
-  | IF expr COLON block ELSE COLON block ENDIF { If ($2, $4, Some($7)) }
-  | WHILE expr COLON block NEXT { While ($2, $4) }
+  | DEF ID parameters COLON NEWLINE block ENDEF { Function ($2, $3, $6) }
+  | IF expr COLON NEWLINE block ENDIF { If ($2, $5, None) }
+  | IF expr COLON NEWLINE block ELSE COLON NEWLINE block ENDIF { If ($2, $5, Some($9)) }
+  | WHILE expr COLON NEWLINE block NEXT { While ($2, $5) }
   | RETURN expr { Return $2 }
   | expr { Expr $1 }
-  | opt_typ ID { Decl($1, $2) }   // Variable declaration with optional type
+  | opt_typ ID { Decl($1, $2) }
 
 block:
   | statement_list { Block $1 }
 
 statement_list:
-  | statement { [$1] }
-  | statement statement_list { $1 :: $2 }
+  | statement_newline { [$1] }
+  | statement_newline statement_list { $1 :: $2 }
 
 opt_typ:
   | typ { Some $1 }
@@ -48,8 +53,8 @@ opt_typ:
 typ:
   | INT { Int }
   | BOOL { Bool }
-  | INTPTR { IntPtr }        // Handle int* type
-  | BOOLPTR { BoolPtr }      // Handle bool* type
+  | INTPTR { IntPtr }
+  | BOOLPTR { BoolPtr }
 
 expr:
   | LITERAL { Literal $1 }
@@ -65,12 +70,13 @@ expr:
   | expr LTE expr { Binop ($1, LessEq, $3) }
   | expr GT expr { Binop ($1, Greater, $3) }
   | expr GTE expr { Binop ($1, GreaterEq, $3) }
-  | ID ASSIGN expr { Assign (None, $1, $3) }
-  | opt_typ ID ASSIGN expr { Assign ($1, $2, $4) }
+  | ID ASSIGN expr { Assign (None, Var($1), $3) }
+  | opt_typ ID ASSIGN expr { Assign ($1, Var($2), $4) }
+  | expr ASSIGN expr { Assign (None, $1, $3) }
   | LPAREN expr RPAREN { $2 }
   | MINUS expr %prec UNARY { Unop (Negate, $2) }
   | AMP expr %prec UNARY { Ref $2 }
-  | STAR expr %prec UNARY { Deref $2 }
+  | STAR ID %prec UNARY { Deref(Var($2)) }
   | ID args { Call($1, $2) }
 
 args:
