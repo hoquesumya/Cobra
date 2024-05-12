@@ -1,7 +1,7 @@
 open Ast
 open Sast
 
-let string_of_op = function
+let string_of_bop = function
   | Add -> "+"
   | Sub -> "-"
   | Mult -> "*"
@@ -23,7 +23,7 @@ let rec string_of_expr = function
   | BoolLit(false) -> "false"
   | Var(s) -> s
   | Binop(e1, o, e2) ->
-      "(" ^ string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2 ^ ")"
+      "(" ^ string_of_expr e1 ^ " " ^ string_of_bop o ^ " " ^ string_of_expr e2 ^ ")"
   | Unop(o, e) -> string_of_uop o ^ "(" ^ string_of_expr e ^ ")"  (* Unary operation with parenthesis for clarity *)
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(func, args) ->
@@ -75,7 +75,7 @@ let rec string_of_sexpr (t, e) =
     | SBoolLit(false) -> "false"
     | SVar(s) -> s
     | SBinop(e1, o, e2) ->
-        "(" ^ string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2 ^ ")"
+        "(" ^ string_of_sexpr e1 ^ " " ^ string_of_bop o ^ " " ^ string_of_sexpr e2 ^ ")"
     | SUnop(o, e) -> string_of_uop o ^ "(" ^ string_of_sexpr e ^ ")"  (* Unary operation with parenthesis for clarity *)
     | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e
     | SCall(func, args) ->
