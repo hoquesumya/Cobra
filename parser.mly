@@ -82,7 +82,6 @@ expr:
   | expr GTE expr { Binop ($1, GreaterEq, $3) }
   | ID ASSIGN expr { Assign (None, Var($1), $3) }
   | typ ID ASSIGN expr { Assign (Some $1, Var($2), $4) }
-  | expr ASSIGN expr { Assign (None, $1, $3) }
   | LPAREN expr RPAREN { $2 }
   | MINUS expr %prec UNARY { Unop (Negate, $2) }
   | AMP expr %prec UNARY { Ref $2 }

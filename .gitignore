@@ -5,3 +5,5 @@ parser.mli
 scanner.ml
 cobra.out
 cobra
+_build
+cobra.native
