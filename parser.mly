@@ -6,17 +6,27 @@ open Ast
 %token <bool> BLIT
 %token RELEASE AUTORELEASE RETAIN
 %token <string> ID
-%token LPAREN RPAREN COLON COMMA DEF ENDEF ELSE IF ENDIF WHILE NEXT RETURN INT BOOL INTPTR BOOLPTR PLUS MINUS ASSIGN EQ NEQ LT GT LTE GTE EOF STAR DIV AMP NEWLINE CLASS ENDCLASS DOT ARROW
+%token LPAREN RPAREN COLON COMMA DEF ENDEF ELSE IF ENDIF WHILE NEXT RETURN INT BOOL INTPTR BOOLPTR PLUS MINUS ASSIGN EQ NEQ LT GT LTE GTE EOF STAR DIV
+%token AMP NEWLINE CLASS ENDCLASS DOT ARROW UNARY SEP
 
-%right ASSIGN
-%right UNARY
-%left EQ NEQ LT LTE GT GTE
-%left PLUS MINUS
-%left STAR DIV
-%nonassoc UNARY
 
 %start program_rule
 %type <Ast.program> program_rule
+
+%right ASSIGN
+%left DOT
+%left EQ NEQ 
+%left LT LTE GT GTE
+%left PLUS MINUS
+%left STAR DIV
+%right UNARY
+
+%right AMP
+
+
+%nonassoc LPAREN
+%nonassoc RPAREN
+
 
 %%
 
@@ -39,20 +49,15 @@ statement:
   | IF expr COLON NEWLINE block ENDIF { If ($2, $5, None) }
   | IF expr COLON NEWLINE block ELSE COLON NEWLINE block ENDIF { If ($2, $5, Some($9)) }
   | WHILE expr COLON NEWLINE block NEXT { While ($2, $5) }
-  | RETURN expr { Return $2 }
-  | expr { Expr $1 }
-  | opt_typ ID { Decl($1, $2) }
+  | RETURN expr NEWLINE{ Return $2 }
+  | expr NEWLINE{ Expr $1 }
+  | typ ID {Decl(Some $1, $2)}
+
+
 
 block:
-  | statement_list { Block $1 }
+  | statements { Block $1 }
 
-statement_list:
-  | statement_newline { [$1] }
-  | statement_newline statement_list { $1 :: $2 }
-
-opt_typ:
-  | typ { Some $1 }
-  | { None }
 
 typ:
   | INT { Int }
@@ -76,7 +81,7 @@ expr:
   | expr GT expr { Binop ($1, Greater, $3) }
   | expr GTE expr { Binop ($1, GreaterEq, $3) }
   | ID ASSIGN expr { Assign (None, Var($1), $3) }
-  | opt_typ ID ASSIGN expr { Assign ($1, Var($2), $4) }
+  | typ ID ASSIGN expr { Assign (Some $1, Var($2), $4) }
   | expr ASSIGN expr { Assign (None, $1, $3) }
   | LPAREN expr RPAREN { $2 }
   | MINUS expr %prec UNARY { Unop (Negate, $2) }
@@ -86,6 +91,7 @@ expr:
   | AUTORELEASE LPAREN expr RPAREN { MemoryOp($3, AutoRelease) }
   | RETAIN LPAREN expr RPAREN { MemoryOp($3, Retain) }
   | ID args { Call($1, $2) }
+
 
 args:
   | LPAREN RPAREN { [] }
@@ -98,6 +104,7 @@ arg_list:
 parameters:
   | LPAREN RPAREN { [] }
   | LPAREN parameter_list RPAREN { $2 }
+
 
 parameter_list:
   | ID COLON typ { [{ param_type = Some($3); param_name = $1 }] }

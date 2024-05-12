@@ -24,7 +24,6 @@ class Handle_fibo:
       return fibonacci_recursive(n-1) + fibonacci_recursive(n-2)
 	  endif 
   endef
-endclass
 
 fibo = Handle_fibo()
 

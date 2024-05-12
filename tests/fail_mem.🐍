@@ -12,10 +12,8 @@ def foo(a: int, b: int, c: int*, d: bool*):
 
 endef
 
-
 int a = 10
 int* e = &a
 *e = x * 5
-
 
 
