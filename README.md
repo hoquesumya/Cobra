@@ -42,5 +42,6 @@ For more complete instructions on contributing to Cobra development, see the [De
 
 - Sumya Class + Mem ops in scan + print.ml
 - Vineeth SAST from nanoc to python
+- Note: using ocamlbuild -use-ocamlfind cobra.native to build for now, since I couldn't get the makefile to work.
 - Vidur IR gen from nanoc to python
 - Baily Docker + tests + docs
