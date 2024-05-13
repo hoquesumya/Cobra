@@ -4,11 +4,11 @@ let () =
   let action = ref Ast in
   let set_action a () = action := a in
   let speclist = [
-    ("ast", Arg.Unit (set_action Ast), "Print AST");
-    ("sast", Arg.Unit (set_action Sast), "Print SAST");
-    ("llvm", Arg.Unit (set_action LLVM_IR), "Print generated LLVM IR");
+    ("-a", Arg.Unit (set_action Ast), "Print AST");
+    ("-s", Arg.Unit (set_action Sast), "Print SAST");
+    ("-l", Arg.Unit (set_action LLVM_IR), "Print generated LLVM IR");
   ] in
-  let usage_msg = "usage: ./cobra.native [ast|sast|llvm] [file]" in
+  let usage_msg = "usage: ./cobra.native [-a|-s|-l] [file]" in
   let channel = ref stdin in
   Arg.parse speclist (fun filename -> channel := open_in filename) usage_msg;
 
