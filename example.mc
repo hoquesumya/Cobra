@@ -1,18 +1,18 @@
 int a
 int b
 
-def gcd(int a, int b) -> int {
-  while (a != b) {
-    if (b < a) {
+def gcd(int a, int b) -> int:
+  while (a != b):
+    if (b < a):
       a = a - b
-    } else {
+    endef else:
       b = b - a
-    }
-  }
+    endef
+  endef
   return a
-}
+endef
 
-def main() -> int {
+def main() -> int:
   int x
   int y
   a = 18
@@ -24,4 +24,4 @@ def main() -> int {
   print(gcd(99,121))
   print(gcd(a,b))
   return 0
-}
+endef

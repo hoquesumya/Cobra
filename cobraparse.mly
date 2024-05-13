@@ -49,7 +49,7 @@ typ:
 
 /* fdecl */
 fdecl:
-  DEF ID LPAREN formals_opt RPAREN ARROW typ LBRACE SEMI vdecl_list stmt_list RBRACE
+  DEF ID LPAREN formals_opt RPAREN ARROW typ COLON SEMI vdecl_list stmt_list ENDEF
   {
     {
       rtyp=$7;
@@ -75,7 +75,7 @@ stmt_list:
 
 stmt:
     expr                               { Expr $1      }
-  | LBRACE SEMI stmt_list RBRACE                 { Block $3 }
+  | COLON SEMI stmt_list ENDEF                { Block $3}
   /* if (condition) { block1} else {block2} */
   /* if (condition) stmt else stmt */
   | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
