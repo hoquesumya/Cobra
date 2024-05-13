@@ -36,22 +36,21 @@ decls:
  | fdecl SEMI decls { (fst $3, ($1 :: snd $3)) }
 
 vdecl_list:
-  /*nothing*/ { print_endline "EMPTY VDECL LIST"; [] }
-  | vdecl SEMI vdecl_list  { print_endline "VDECL LIST"; $1 :: $3 }
+  /*nothing*/ { [] }
+  | vdecl SEMI vdecl_list  { $1 :: $3 }
 
 /* int x */
 vdecl:
-  typ ID { print_endline ("VDECL ID " ^ $2); ($1, $2) }
+  typ ID { ($1, $2) }
 
 typ:
-    INT   { print_endline "TYP"; Int   }
+    INT   { Int   }
   | BOOL  { Bool  }
 
 /* fdecl */
 fdecl:
   DEF ID LPAREN formals_opt RPAREN ARROW typ LBRACE SEMI vdecl_list stmt_list RBRACE
   {
-    print_endline "FUNC";
     {
       rtyp=$7;
       fname=$2;
@@ -64,11 +63,11 @@ fdecl:
 /* formals_opt */
 formals_opt:
   /*nothing*/ { [] }
-  | formals_list { print_endline "FORMALS"; $1 }
+  | formals_list { $1 }
 
 formals_list:
-  ID COLON typ { [$1] }
-  | ID COLON typ COMMA formals_list { $1::$3 }
+  vdecl { [$1] }
+  | vdecl COMMA formals_list { $1::$3 }
 
 stmt_list:
   /* nothing */ { [] }
@@ -79,10 +78,10 @@ stmt:
   | LBRACE SEMI stmt_list RBRACE                 { Block $3 }
   /* if (condition) { block1} else {block2} */
   /* if (condition) stmt else stmt */
-  | IF LPAREN expr COLON stmt ELSE stmt    { If($3, $5, $7) }
-  | WHILE COLON expr ENDEF stmt           { print_endline "WHILE"; While ($3, $5)  }
+  | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
+  | WHILE LPAREN expr RPAREN stmt           { While ($3, $5)  }
   /* return */
-  | RETURN expr                        { print_endline "RETURN"; Return $2      }
+  | RETURN expr                        { Return $2      }
 
 expr:
     LITERAL          { Literal($1)            }

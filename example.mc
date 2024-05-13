@@ -1,7 +1,7 @@
 int a
 int b
 
-def gcd(a: int, b: int) -> int {
+def gcd(int a, int b) -> int {
   while (a != b) {
     if (b < a) {
       a = a - b
