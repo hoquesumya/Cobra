@@ -12,4 +12,4 @@ ENV PATH="/root/.opam/4.12.0/bin:$PATH"
 
 WORKDIR /app
 
-COPY . /app
+RUN mkdir test

@@ -31,8 +31,6 @@ type sfunc_def = {
 
 type sprogram = bind list * sfunc_def list
 
-
-
 (* Pretty-printing functions *)
 let rec string_of_sexpr (t, e) =
   "(" ^ string_of_typ t ^ " : " ^ (match e with

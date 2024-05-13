@@ -67,8 +67,8 @@ formals_opt:
   | formals_list { print_endline "FORMALS"; $1 }
 
 formals_list:
-  vdecl { [$1] }
-  | vdecl COMMA formals_list { $1::$3 }
+  ID COLON typ { [$1] }
+  | ID COLON typ COMMA formals_list { $1::$3 }
 
 stmt_list:
   /* nothing */ { [] }
@@ -79,8 +79,8 @@ stmt:
   | LBRACE SEMI stmt_list RBRACE                 { Block $3 }
   /* if (condition) { block1} else {block2} */
   /* if (condition) stmt else stmt */
-  | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
-  | WHILE LPAREN expr RPAREN stmt           { print_endline "WHILE"; While ($3, $5)  }
+  | IF LPAREN expr COLON stmt ELSE stmt    { If($3, $5, $7) }
+  | WHILE COLON expr ENDEF stmt           { print_endline "WHILE"; While ($3, $5)  }
   /* return */
   | RETURN expr                        { print_endline "RETURN"; Return $2      }
 
