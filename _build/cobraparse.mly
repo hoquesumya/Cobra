@@ -4,7 +4,7 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE DEF ENDEF ARROW COLON NEWLINE PLUS MINUS ASSIGN
+%token SEMI LPAREN RPAREN LBRACE RBRACE DEF ENDEF ARROW COLON PLUS MINUS ASSIGN
 %token EQ NEQ LT AND OR
 %token IF ELSE WHILE INT BOOL
 /* return, COMMA token */
@@ -28,53 +28,43 @@ open Ast
 
 /* add function declarations*/
 program:
-  decls EOF { $1}
+  decls EOF { $1 }
 
 decls:
    /* nothing */ { ([], [])               }
  | vdecl SEMI decls { (($1 :: fst $3), snd $3) }
- | fdecl decls { (fst $2, ($1 :: snd $2)) }
+ | fdecl SEMI decls { (fst $3, ($1 :: snd $3)) }
 
 vdecl_list:
-  /*nothing*/ { [] }
-  | vdecl SEMI vdecl_list  {  $1 :: $3 }
+  /*nothing*/ { print_endline "EMPTY VDECL LIST"; [] }
+  | vdecl SEMI vdecl_list  { print_endline "VDECL LIST"; $1 :: $3 }
 
 /* int x */
 vdecl:
-  typ ID { ($1, $2) }
+  typ ID { print_endline ("VDECL ID " ^ $2); ($1, $2) }
 
 typ:
-    INT   { Int   }
+    INT   { print_endline "TYP"; Int   }
   | BOOL  { Bool  }
 
 /* fdecl */
 fdecl:
-  // DEF ID formals_opt ARROW typ COLON NEWLINE vdecl_list stmt_list ENDEF
-  DEF ID LPAREN formals_opt RPAREN ARROW typ LBRACE vdecl_list stmt_list RBRACE
-  // vdecl LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-  // {
-  //   {
-  //     rtyp=fst $1;
-  //     fname=snd $1;
-  //     formals=$3;
-  //     locals=$6;
-  //     body=$7
-  //   }
-  // }
+  DEF ID LPAREN formals_opt RPAREN ARROW typ LBRACE SEMI vdecl_list stmt_list RBRACE
   {
+    print_endline "FUNC";
     {
       rtyp=$7;
       fname=$2;
       formals=$4;
-      locals=$9;
-      body=$10
+      locals=$10;
+      body=$11
     }
   }
 
 /* formals_opt */
 formals_opt:
   /*nothing*/ { [] }
-  | formals_list { $1 }
+  | formals_list { print_endline "FORMALS"; $1 }
 
 formals_list:
   vdecl { [$1] }
@@ -92,7 +82,7 @@ stmt:
   | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
   | WHILE LPAREN expr RPAREN stmt           { While ($3, $5)  }
   /* return */
-  | RETURN expr SEMI                        { Return $2      }
+  | RETURN expr SEMI                        { print_endline "RETURN"; Return $2      }
 
 expr:
     LITERAL          { Literal($1)            }

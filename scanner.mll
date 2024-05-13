@@ -6,7 +6,8 @@ let digit = ['0'-'9']
 let letter = ['a'-'z' 'A'-'Z']
 
 rule token = parse
-  [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
+  [' ' '\t' '\r'] { token lexbuf } (* Whitespace *)
+| ['\n']+     { print_endline "NEWLINE"; SEMI }
 | '('      { LPAREN }
 | ')'      { RPAREN }
 
@@ -18,7 +19,6 @@ rule token = parse
 | "->"     { ARROW }
 | ':'      { COLON }
 
-| ';'      { SEMI }
 | ','      { COMMA }
 | '+'      { PLUS }
 | '-'      { MINUS }

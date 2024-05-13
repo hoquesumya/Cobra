@@ -8,7 +8,6 @@ type token =
   | ENDEF
   | ARROW
   | COLON
-  | NEWLINE
   | PLUS
   | MINUS
   | ASSIGN
@@ -27,17 +26,17 @@ type token =
   | LITERAL of (
 # 12 "cobraparse.mly"
         int
-# 31 "cobraparse.mli"
+# 30 "cobraparse.mli"
 )
   | BLIT of (
 # 13 "cobraparse.mly"
         bool
-# 36 "cobraparse.mli"
+# 35 "cobraparse.mli"
 )
   | ID of (
 # 14 "cobraparse.mly"
         string
-# 41 "cobraparse.mli"
+# 40 "cobraparse.mli"
 )
   | EOF
 
