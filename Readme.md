@@ -28,3 +28,11 @@ lli example.out
 - `cobra.ml`: top-level file to test and run cobra compiler
 - `example.mc`: a sample cobra source code
 - `example.out`: a sample compiled code of example.mc
+
+### Run Docker Steps
+
+docker build -t cobra .
+docker run -v $(pwd):/app -it cobra /bin/bash
+ocamlbuild -pkgs llvm cobra.native
+./cobra.native -l example.mc > example.out
+lli-14 example.out
