@@ -1,0 +1,19 @@
+int* x
+bool* y
+
+int g
+bool h
+
+int a = 10
+int* e = &a
+
+def foo(a: int, b: int, c: int*, d: bool*):
+	return &b
+
+endef
+
+int a = 10
+int* e = &a
+*e = x * 5
+
+
