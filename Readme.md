@@ -1,12 +1,12 @@
-### Build the MicroC compiler
+### Build the Cobra compiler
 
 ```
-ocamlbuild -pkgs llvm microc.native
+ocamlbuild -pkgs llvm cobra.native
 ```
 
-### Run the MicroC compiler and generate llvm code
+### Run the Cobra compiler and generate llvm code
 ```
-./microc.native -l example.mc > example.out
+./cobra.native -l example.mc > example.out
 ```
 
 ### Run the llvm code
@@ -17,7 +17,7 @@ lli example.out
 ### Compiler files
 -  `ast.ml`: abstract syntax tree (AST) definition
 -  `scanner.mll`: scanner
--  `microcparse.mly`: parser
+-  `cobraparse.mly`: parser
 -  `sast.ml`: definition of the semantically-checked AST
 -  `semant.ml`: semantic checking
 
@@ -25,6 +25,6 @@ lli example.out
 
 - `test1.ml`: the file to test the scanner and parser
 - `test2.ml`: the file to test the semantic checker
-- `microc.ml`: top-level file to test and run microc compiler
-- `example.mc`: a sample microc source code
+- `cobra.ml`: top-level file to test and run cobra compiler
+- `example.mc`: a sample cobra source code
 - `example.out`: a sample compiled code of example.mc

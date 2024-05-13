@@ -1,4 +1,4 @@
-/* The GCD algorithm in MicroC */
+/* The GCD algorithm in Cobra */
 int a;
 int b;
 
