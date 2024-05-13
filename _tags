@@ -1,0 +1,2 @@
+true: debug, bin_annot, explain, thread
+<**/*.ml>: warn(A-4-44)
