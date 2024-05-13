@@ -2,6 +2,13 @@ int a
 int b
 
 def gcd(int a, int b) -> int {
+  while (a != b) {
+    if (b < a) {
+      a = a - b
+    } else {
+      b = b - a
+    }
+  }
   return a
 }
 

@@ -72,17 +72,17 @@ formals_list:
 
 stmt_list:
   /* nothing */ { [] }
-  | stmt stmt_list  { $1::$2 }
+  | stmt SEMI stmt_list  { $1::$3 }
 
 stmt:
-    expr SEMI                               { Expr $1      }
-  | LBRACE stmt_list RBRACE                 { Block $2 }
+    expr                               { Expr $1      }
+  | LBRACE SEMI stmt_list RBRACE                 { Block $3 }
   /* if (condition) { block1} else {block2} */
   /* if (condition) stmt else stmt */
   | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
-  | WHILE LPAREN expr RPAREN stmt           { While ($3, $5)  }
+  | WHILE LPAREN expr RPAREN stmt           { print_endline "WHILE"; While ($3, $5)  }
   /* return */
-  | RETURN expr SEMI                        { print_endline "RETURN"; Return $2      }
+  | RETURN expr                        { print_endline "RETURN"; Return $2      }
 
 expr:
     LITERAL          { Literal($1)            }
