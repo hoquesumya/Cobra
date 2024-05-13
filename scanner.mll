@@ -10,15 +10,10 @@ rule token = parse
 | ['\n']+     { SEMI }
 | '('      { LPAREN }
 | ')'      { RPAREN }
-
-| '{'      { LBRACE }
-| '}'      { RBRACE }
-
 | "def"    { DEF }
 | "endef"  { ENDEF }
 | "->"     { ARROW }
 | ':'      { COLON }
-
 | ','      { COMMA }
 | '+'      { PLUS }
 | '-'      { MINUS }

@@ -1,17 +1,10 @@
-(* Semantic checking for the Cobra compiler *)
-
 open Ast
 open Sast
+open Print
 
 module StringMap = Map.Make(String)
 
-(* Semantic checking of the AST. Returns an SAST if successful,
-   throws an exception if something is wrong.
-
-   Check each global variable, then check each function *)
-
 let check (globals, functions) =
-
   (* Verify a list of bindings has no duplicate names *)
   let check_binds (kind : string) (binds : (typ * string) list) =
     let rec dups = function
