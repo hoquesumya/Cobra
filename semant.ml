@@ -13,28 +13,29 @@ let check (locals, body) =
   in
   let type_of_identifier s =
     try StringMap.find s symbols
-    with Not_found -> raise (Failure ("undeclared identifier " ^ s))
+    (*with Not_found -> raise (Failure ("undeclared identifier " ^ s))*)
+    with Not_found -> Int
   in
   let rec check_expr = function
     | Literal l -> (Int, SLiteral l)
     | BoolLit l -> (Bool, SBoolLit l)
     | Var v -> (type_of_identifier v, SVar v)
     | Assign(None, e1, e2) ->
-        let (t1, e1') = check_expr e1
+        let (t1, e1') = check_expr e1 
         and (t2, e2') = check_expr e2 in
         let err = "illegal assignment " ^ string_of_typ t1 ^ " = " ^
                   string_of_typ t2 ^ " in " ^ string_of_expr e2
         in
-        if t1 = t2 then
-          (t1, SAssign(None, (t1, e1'), (t2, e2')))
-        else raise (Failure err)
+        (*if t1 = t2 then*)
+        (t1, SAssign(None, (t1, e1'), (t2, e2')))
+        (*else raise (Failure err)*)
     | Assign(Some ty, e1, e2) as ex ->
-      let (t1, e1') = check_expr e1
+      let (t1, e1') = check_expr e1 
       and (t2, e2') = check_expr e2 in
       let err = "illegal assignment " ^ string_of_typ t1 ^ " = " ^
                   string_of_typ t2 ^ " in " ^ string_of_expr e2
       in
-      if (ty = t1) && (t1 = t2) then
+      if (ty = t2) (*&& (t1 = t2)*) then
         (t1, SAssign(Some ty, (t1, e1'), (t2, e2')))
       else raise (Failure err)
     | Unop(op, e) -> 
