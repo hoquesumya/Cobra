@@ -22,20 +22,25 @@ rule token = parse
 | ','      { COMMA }
 | '+'      { PLUS }
 | '-'      { MINUS }
+| '/'      { DIV }
+| '*'      { MULT }
 | '='      { ASSIGN }
 | "=="     { EQ }
 | "!="     { NEQ }
 | '<'      { LT }
-| "&&"     { AND }
-| "||"     { OR }
+| "<="      { LTE }
+| '>'      { GT }
+| ">="      { GTE }
+| "and"     { AND }
+| "or"     { OR }
 | "if"     { IF }
 | "else"   { ELSE }
 | "while"  { WHILE }
 | "return" { RETURN }
 | "int"    { INT }
 | "bool"   { BOOL }
-| "true"   { BLIT(true)  }
-| "false"  { BLIT(false) }
+| "True"   { BLIT(true)  }
+| "False"  { BLIT(false) }
 | digit+ as lem  { LITERAL(int_of_string lem) }
 | letter (digit | letter | '_')* as lem { ID(lem) }
 | eof { EOF }

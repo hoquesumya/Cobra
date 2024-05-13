@@ -106,13 +106,18 @@ let translate (globals, functions) =
         let e1' = build_expr builder e1
         and e2' = build_expr builder e2 in
         (match op with
-           A.Add     -> L.build_add
-         | A.Sub     -> L.build_sub
-         | A.And     -> L.build_and
-         | A.Or      -> L.build_or
-         | A.Equal   -> L.build_icmp L.Icmp.Eq
-         | A.Neq     -> L.build_icmp L.Icmp.Ne
-         | A.Less    -> L.build_icmp L.Icmp.Slt
+           A.Add       -> L.build_add
+         | A.Sub       -> L.build_sub
+         | A.Mult      -> L.build_mul
+         | A.Divide    -> L.build_sdiv
+         | A.And       -> L.build_and
+         | A.Or        -> L.build_or
+         | A.Equal     -> L.build_icmp L.Icmp.Eq
+         | A.Neq       -> L.build_icmp L.Icmp.Ne
+         | A.Less      -> L.build_icmp L.Icmp.Slt
+         | A.LessEq    -> L.build_icmp L.Icmp.Sle
+         | A.Greater   -> L.build_icmp L.Icmp.Sgt
+         | A.GreaterEq -> L.build_icmp L.Icmp.Sge
         ) e1' e2' "tmp" builder
       | SCall ("print", [e]) ->
         L.build_call printf_func [| int_format_str ; (build_expr builder e) |]

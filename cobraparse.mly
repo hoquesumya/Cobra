@@ -4,8 +4,8 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE DEF ENDEF ARROW COLON PLUS MINUS ASSIGN
-%token EQ NEQ LT AND OR
+%token SEMI LPAREN RPAREN LBRACE RBRACE DEF ENDEF ARROW COLON PLUS MINUS MULT DIV ASSIGN
+%token EQ NEQ LT GT LTE GTE AND OR
 %token IF ELSE WHILE INT BOOL
 /* return, COMMA token */
 %token RETURN COMMA
@@ -21,8 +21,9 @@ open Ast
 %left OR
 %left AND
 %left EQ NEQ
-%left LT
+%left LT LTE GT GTE
 %left PLUS MINUS
+%left MULT DIV
 
 %%
 
@@ -89,9 +90,14 @@ expr:
   | ID               { Id($1)                 }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
+  | expr MULT   expr { Binop($1, Mult,   $3)   }
+  | expr DIV    expr { Binop($1, Divide,   $3)   }
   | expr EQ     expr { Binop($1, Equal, $3)   }
   | expr NEQ    expr { Binop($1, Neq, $3)     }
   | expr LT     expr { Binop($1, Less,  $3)   }
+  | expr GT     expr { Binop($1, Greater,  $3)   }
+  | expr LTE    expr { Binop($1, LessEq,  $3)   }
+  | expr GTE    expr { Binop($1, GreaterEq,  $3)   }
   | expr AND    expr { Binop($1, And,   $3)   }
   | expr OR     expr { Binop($1, Or,    $3)   }
   | ID ASSIGN expr   { Assign($1, $3)         }
