@@ -34,6 +34,8 @@ rule token = parse
 | "return" { RETURN }
 | "int"    { INT }
 | "bool"   { BOOL }
+| "int*" { INTPTR }
+| "bool*" { BOOLPTR }
 | "True"   { BLIT(true)  }
 | "False"  { BLIT(false) }
 | digit+ as lem  { LITERAL(int_of_string lem) }
