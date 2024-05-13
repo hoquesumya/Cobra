@@ -4,7 +4,7 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE PLUS MINUS ASSIGN
+%token SEMI LPAREN RPAREN LBRACE RBRACE DEF ENDEF ARROW COLON NEWLINE PLUS MINUS ASSIGN
 %token EQ NEQ LT AND OR
 %token IF ELSE WHILE INT BOOL
 /* return, COMMA token */
@@ -49,14 +49,14 @@ typ:
 
 /* fdecl */
 fdecl:
-  vdecl LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+  DEF ID LPAREN formals_opt RPAREN ARROW typ LBRACE vdecl_list stmt_list RBRACE
   {
     {
-      rtyp=fst $1;
-      fname=snd $1;
-      formals=$3;
-      locals=$6;
-      body=$7
+      rtyp=$7;
+      fname=$2;
+      formals=$4;
+      locals=$9;
+      body=$10
     }
   }
 

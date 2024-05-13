@@ -1,8 +1,7 @@
-/* The GCD algorithm in Cobra */
 int a;
 int b;
 
-int gcd(int a, int b) {
+def gcd(int a, int b) -> int {
   while (a != b) {
     if (b < a) a = a - b;
     else b = b - a;
@@ -10,7 +9,7 @@ int gcd(int a, int b) {
   return a;
 }
 
-int main() {
+def main() -> int {
   int x;
   int y;
   a = 18;

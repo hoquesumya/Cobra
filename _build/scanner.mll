@@ -7,13 +7,18 @@ let letter = ['a'-'z' 'A'-'Z']
 
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
-| "/*"     { comment lexbuf }           (* Comments *)
 | '('      { LPAREN }
 | ')'      { RPAREN }
+
 | '{'      { LBRACE }
 | '}'      { RBRACE }
+
+| "def"    { DEF }
+| "endef"  { ENDEF }
+| "->"     { ARROW }
+| ':'      { COLON }
+
 | ';'      { SEMI }
-(* COMMA *)
 | ','      { COMMA }
 | '+'      { PLUS }
 | '-'      { MINUS }
@@ -26,7 +31,6 @@ rule token = parse
 | "if"     { IF }
 | "else"   { ELSE }
 | "while"  { WHILE }
-(* RETURN *)
 | "return" { RETURN }
 | "int"    { INT }
 | "bool"   { BOOL }
@@ -36,7 +40,3 @@ rule token = parse
 | letter (digit | letter | '_')* as lem { ID(lem) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
-
-and comment = parse
-  "*/" { token lexbuf }
-| _    { comment lexbuf }

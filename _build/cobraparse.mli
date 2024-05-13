@@ -4,6 +4,11 @@ type token =
   | RPAREN
   | LBRACE
   | RBRACE
+  | DEF
+  | ENDEF
+  | ARROW
+  | COLON
+  | NEWLINE
   | PLUS
   | MINUS
   | ASSIGN
@@ -22,17 +27,17 @@ type token =
   | LITERAL of (
 # 12 "cobraparse.mly"
         int
-# 26 "cobraparse.mli"
+# 31 "cobraparse.mli"
 )
   | BLIT of (
 # 13 "cobraparse.mly"
         bool
-# 31 "cobraparse.mli"
+# 36 "cobraparse.mli"
 )
   | ID of (
 # 14 "cobraparse.mly"
         string
-# 36 "cobraparse.mli"
+# 41 "cobraparse.mli"
 )
   | EOF
 

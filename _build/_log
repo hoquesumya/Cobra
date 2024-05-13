@@ -1,6 +1,6 @@
 ### Starting build.
 # Target: cobra.ml.depends, tags: { extension:ml, file:cobra.ml, ocaml, ocamldep, quiet }
-/Users/bailytroyer/.opam/default/bin/ocamldep.opt -modules cobra.ml > cobra.ml.depends
+/Users/bailytroyer/.opam/default/bin/ocamldep.opt -modules cobra.ml > cobra.ml.depends # cached
 # Target: ast.ml.depends, tags: { extension:ml, file:ast.ml, ocaml, ocamldep, quiet }
 /Users/bailytroyer/.opam/default/bin/ocamldep.opt -modules ast.ml > ast.ml.depends # cached
 # Target: ast.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ast.cmo, file:ast.ml, implem, ocaml, quiet }
@@ -26,21 +26,21 @@
 # Target: semant.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:semant.cmo, file:semant.ml, implem, ocaml, quiet }
 /Users/bailytroyer/.opam/default/bin/ocamlc.opt -c -o semant.cmo semant.ml # cached
 # Target: cobra.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:cobra.cmo, file:cobra.ml, implem, ocaml, quiet }
-/Users/bailytroyer/.opam/default/bin/ocamlc.opt -c -o cobra.cmo cobra.ml
-# Target: cobraparse.ml.depends, tags: { extension:ml, file:cobraparse.ml, ocaml, ocamldep, quiet }
-/Users/bailytroyer/.opam/default/bin/ocamldep.opt -modules cobraparse.ml > cobraparse.ml.depends
+/Users/bailytroyer/.opam/default/bin/ocamlc.opt -c -o cobra.cmo cobra.ml # cached
 # Target: ast.cmx, tags: { compile, extension:cmx, extension:ml, file:ast.cmx, file:ast.ml, implem, native, ocaml, quiet }
-/Users/bailytroyer/.opam/default/bin/ocamlopt.opt -c -o ast.cmx ast.ml
+/Users/bailytroyer/.opam/default/bin/ocamlopt.opt -c -o ast.cmx ast.ml # cached
+# Target: cobraparse.ml.depends, tags: { extension:ml, file:cobraparse.ml, ocaml, ocamldep, quiet }
+/Users/bailytroyer/.opam/default/bin/ocamldep.opt -modules cobraparse.ml > cobraparse.ml.depends # cached
 # Target: cobraparse.cmx, tags: { compile, extension:cmx, extension:ml, file:cobraparse.cmx, file:cobraparse.ml, implem, native, ocaml, quiet }
-/Users/bailytroyer/.opam/default/bin/ocamlopt.opt -c -o cobraparse.cmx cobraparse.ml
+/Users/bailytroyer/.opam/default/bin/ocamlopt.opt -c -o cobraparse.cmx cobraparse.ml # cached
 # Target: sast.cmx, tags: { compile, extension:cmx, extension:ml, file:sast.cmx, file:sast.ml, implem, native, ocaml, quiet }
-/Users/bailytroyer/.opam/default/bin/ocamlopt.opt -c -o sast.cmx sast.ml
+/Users/bailytroyer/.opam/default/bin/ocamlopt.opt -c -o sast.cmx sast.ml # cached
 # Target: scanner.cmx, tags: { compile, extension:cmx, extension:ml, file:scanner.cmx, file:scanner.ml, implem, native, ocaml, quiet }
-/Users/bailytroyer/.opam/default/bin/ocamlopt.opt -c -o scanner.cmx scanner.ml
+/Users/bailytroyer/.opam/default/bin/ocamlopt.opt -c -o scanner.cmx scanner.ml # cached
 # Target: semant.cmx, tags: { compile, extension:cmx, extension:ml, file:semant.cmx, file:semant.ml, implem, native, ocaml, quiet }
-/Users/bailytroyer/.opam/default/bin/ocamlopt.opt -c -o semant.cmx semant.ml
+/Users/bailytroyer/.opam/default/bin/ocamlopt.opt -c -o semant.cmx semant.ml # cached
 # Target: cobra.cmx, tags: { compile, extension:cmx, extension:ml, file:cobra.cmx, file:cobra.ml, implem, native, ocaml, quiet }
-/Users/bailytroyer/.opam/default/bin/ocamlopt.opt -c -o cobra.cmx cobra.ml
+/Users/bailytroyer/.opam/default/bin/ocamlopt.opt -c -o cobra.cmx cobra.ml # cached
 # Target: cobra.native, tags: { dont_link_with, extension:native, file:cobra.native, link, native, ocaml, program, quiet }
-/Users/bailytroyer/.opam/default/bin/ocamlopt.opt ast.cmx cobraparse.cmx sast.cmx scanner.cmx semant.cmx cobra.cmx -o cobra.native
+/Users/bailytroyer/.opam/default/bin/ocamlopt.opt ast.cmx cobraparse.cmx sast.cmx scanner.cmx semant.cmx cobra.cmx -o cobra.native # cached
 # Compilation successful.
