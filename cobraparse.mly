@@ -1,6 +1,6 @@
 %{ open Ast %}
 
-%token SEMI LPAREN RPAREN DEF ENDEF ARROW COLON PLUS MINUS MULT DIV ASSIGN
+%token NEWLINE LPAREN RPAREN DEF ENDEF ARROW COLON PLUS MINUS MULT DIV ASSIGN
 %token EQ NEQ LT GT LTE GTE AND OR
 %token IF ELSE WHILE INT BOOL
 %token RETURN COMMA
@@ -27,12 +27,12 @@ program:
 
 decls:
   { ([], []) }
-  | vdecl SEMI decls { (($1 :: fst $3), snd $3) }
-  | fdecl SEMI decls { (fst $3, ($1 :: snd $3)) }
+  | vdecl NEWLINE decls { (($1 :: fst $3), snd $3) }
+  | fdecl NEWLINE decls { (fst $3, ($1 :: snd $3)) }
 
 vdecl_list:
   { [] }
-  | vdecl SEMI vdecl_list  { $1 :: $3 }
+  | vdecl NEWLINE vdecl_list  { $1 :: $3 }
 
 vdecl:
   typ ID { ($1, $2) }
@@ -42,7 +42,7 @@ typ:
   | BOOL  { Bool }
 
 fdecl:
-  DEF ID LPAREN formals_opt RPAREN ARROW typ COLON SEMI vdecl_list stmt_list ENDEF
+  DEF ID LPAREN formals_opt RPAREN ARROW typ COLON NEWLINE vdecl_list stmt_list ENDEF
   {
     {
       rtyp = $7;
@@ -63,11 +63,11 @@ formals_list:
 
 stmt_list:
   { [] }
-  | stmt SEMI stmt_list  { $1::$3 }
+  | stmt NEWLINE stmt_list  { $1::$3 }
 
 stmt:
   expr                                   { Expr $1 }
-  | COLON SEMI stmt_list ENDEF           { Block $3 }
+  | COLON NEWLINE stmt_list ENDEF           { Block $3 }
   | IF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) }
   | WHILE LPAREN expr RPAREN stmt        { While($3, $5) }
   | RETURN expr                          { Return $2 }

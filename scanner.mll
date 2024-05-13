@@ -7,7 +7,7 @@ let letter = ['a'-'z' 'A'-'Z']
 
 rule token = parse
   [' ' '\t' '\r'] { token lexbuf } (* Whitespace *)
-| ['\n']+     { SEMI }
+| ['\n']+     { NEWLINE }
 | '('      { LPAREN }
 | ')'      { RPAREN }
 | "def"    { DEF }
