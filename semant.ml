@@ -15,20 +15,28 @@ let check (locals, body) =
     try StringMap.find s symbols
     with Not_found -> raise (Failure ("undeclared identifier " ^ s))
   in
-  let check_assign lvaluet rvaluet err =
-    if lvaluet = rvaluet then lvaluet else raise (Failure err)
-  in
   let rec check_expr = function
     | Literal l -> (Int, SLiteral l)
     | BoolLit l -> (Bool, SBoolLit l)
     | Var v -> (type_of_identifier v, SVar v)
-    | Assign(var, e) as ex ->
-      let lt = type_of_identifier var
-      and (rt, e') = check_expr e in 
-      let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^
-                  string_of_typ rt ^ " in " ^ string_of_expr ex
+    | Assign(None, e1, e2) ->
+        let (t1, e1') = check_expr e1
+        and (t2, e2') = check_expr e2 in
+        let err = "illegal assignment " ^ string_of_typ t1 ^ " = " ^
+                  string_of_typ t2 ^ " in " ^ string_of_expr e2
+        in
+        if t1 = t2 then
+          (t1, SAssign(None, (t1, e1'), (t2, e2')))
+        else raise (Failure err)
+    | Assign(Some ty, e1, e2) as ex ->
+      let (t1, e1') = check_expr e1
+      and (t2, e2') = check_expr e2 in
+      let err = "illegal assignment " ^ string_of_typ t1 ^ " = " ^
+                  string_of_typ t2 ^ " in " ^ string_of_expr e2
       in
-        (check_assign lt rt err, SAssign(var, (rt, e')))
+      if (ty = t1) && (t1 = t2) then
+        (t1, SAssign(Some ty, (t1, e1'), (t2, e2')))
+      else raise (Failure err)
     | Unop(op, e) -> 
       let (t, e') = check_expr e in
       let err = "illegal unary operator " ^ string_of_typ t ^ " " ^
@@ -65,9 +73,6 @@ let check (locals, body) =
       let err = "Expected bool expression in: " ^ string_of_expr e
       in raise (Failure err)
   in
-  let check_assign lvaluet rvaluet err =
-      if lvaluet = rvaluet then lvaluet else raise (Failure err)
-  in
   let rec check_stmt = function
     | Expr e -> SExpr (check_expr e)
     | If(e, b, None) -> SIf(check_bool_expr e, check_block b, None)
@@ -75,7 +80,8 @@ let check (locals, body) =
     | While(e, st) -> 
       SWhile(check_bool_expr e, check_block st)
     | Return(e) -> SReturn(check_expr e)
-    | Function(fname, fargs, def) -> SFunction(fname, fargs, check_block def)
+    | Function(name, params, None, block) -> SFunction(name, params, None, check_block block)
+    | Function(name, params, Some typ, block) -> SFunction(name, params, Some typ, check_block block)
   and check_block = function
     | Block(stmts) -> SBlock(List.map check_stmt stmts)
     | _ -> raise (Failure "Expected block in function body")

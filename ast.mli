@@ -3,7 +3,6 @@ type bop =
   | Sub
   | Mult
   | Div
-  | Assign
   | Equal
   | Neq
   | Less

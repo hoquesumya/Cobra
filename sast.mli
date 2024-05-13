@@ -9,10 +9,10 @@ and expr_detail =
   | SUnop of uop * sexpr
   | SAssign of typ option * sexpr * sexpr
   | SCall of string * sexpr list
-  | Ref of sexpr
-  | Deref of sexpr 
-  | ObjectCall of sexpr * string * sexpr list
-  | MemoryOp of sexpr * memoryOp
+  | SRef of sexpr
+  | SDeref of sexpr 
+  | SObjectCall of sexpr * string * sexpr list
+  | SMemoryOp of sexpr * memoryOp
 
 type sclass_decl = {
   sclass_name: string;
@@ -32,6 +32,6 @@ and sstmt =
 and sblock = SBlock of sstmt list  (* Define Block as a distinct type wrapping a list of statements *)
 
 type sprogram = {
-  locals: (typ * string) list;
-  body: sblock;
+  slocals: (typ * string) list;
+  sbody: sblock;
 }

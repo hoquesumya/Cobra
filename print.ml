@@ -2,7 +2,7 @@ open Ast
 open Sast
 
 (* String representation of binary operators *)
-let string_of_op = function
+let string_of_bop = function
   | Add -> "+"
   | Sub -> "-"
   | Mult -> "*"
@@ -13,7 +13,6 @@ let string_of_op = function
   | Greater -> ">"
   | LessEq -> "<="
   | GreaterEq -> ">="
-  | Assign -> "="
 
 let string_of_typ = function
   | Int -> "int"
@@ -35,7 +34,7 @@ let rec string_of_expr = function
   | BoolLit(false) -> "false"
   | Var(s) -> s
   | Binop(e1, o, e2) ->
-      "(" ^ string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2 ^ ")"
+      "(" ^ string_of_expr e1 ^ " " ^ string_of_bop o ^ " " ^ string_of_expr e2 ^ ")"
   | Unop(o, e) -> string_of_uop o ^ "(" ^ string_of_expr e ^ ")"
   | Assign(ty_opt, v, e) ->
     let type_str = match ty_opt with
@@ -120,9 +119,18 @@ let rec string_of_sexpr (t, e) =
     | SBinop(e1, o, e2) ->
         "(" ^ string_of_sexpr e1 ^ " " ^ string_of_bop o ^ " " ^ string_of_sexpr e2 ^ ")"
     | SUnop(o, e) -> string_of_uop o ^ "(" ^ string_of_sexpr e ^ ")"  (* Unary operation with parenthesis for clarity *)
-    | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e
+    | SAssign(ty_opt, v, e) ->
+      let type_str = match ty_opt with
+        | Some ty -> string_of_typ ty ^ " "
+        | None -> ""  (* Optionally omit type or provide a default *)
+      in
+      string_of_sexpr v ^ " = " ^ type_str ^ string_of_sexpr e
     | SCall(func, args) ->
-        func ^ "(" ^ String.concat ", " (List.map string_of_sexpr args) ^ ")")
+        func ^ "(" ^ String.concat ", " (List.map string_of_sexpr args) ^ ")"
+    | SRef(e) -> "(&" ^ string_of_sexpr e ^ ")"
+    | SDeref(e) ->  "(*" ^ string_of_sexpr e ^ ")"
+    | SObjectCall(obj, meth, args) -> string_of_sexpr obj ^ "." ^ meth ^ "(" ^ String.concat ", " (List.map string_of_sexpr args) ^ ")"
+    | SMemoryOp(obj, meth) -> string_of_memory_op meth ^ " " ^ string_of_sexpr obj)
 
 let rec string_of_sstmt indent = function
   | SExpr(expr) -> indent_lines indent (string_of_sexpr expr ^ ";")
@@ -138,15 +146,36 @@ let rec string_of_sstmt indent = function
     indent_lines indent ("while " ^ string_of_sexpr e ^ ":") ^ "\n" ^
     string_of_sstmts (indent + 1) s
   | SReturn(expr) -> indent_lines indent ("return " ^ string_of_sexpr expr ^ ";")
-  | SFunction(name, params, body) ->
-    indent_lines indent ("def " ^ name ^ "(" ^ String.concat ", " params ^ "):") ^ "\n" ^
+  | SFunction(name, params, rtyp, body) ->
+    let params_str = params |> List.map (fun p ->
+      match p.param_type with
+      | Some ty -> string_of_typ ty ^ " " ^ p.param_name
+      | None -> p.param_name  (* Omit type information if None *)
+    ) |> String.concat ", " in
+    let rtyp_str = match rtyp with
+      | Some ty -> "->" ^ string_of_typ ty
+      | None -> "" in
+    indent_lines indent ("def " ^ name ^ "(" ^ params_str ^ ")" ^ rtyp_str ^ ":") ^ "\n" ^
     string_of_sstmts (indent + 1) body
+  | SDecl(ty_opt, name) ->
+    let type_str = match ty_opt with
+      | Some ty -> string_of_typ ty ^ " "
+      | None -> ""  (* Optionally omit type or provide a default *)
+    in
+    indent_lines indent (type_str ^ name ^ ";\n")
+  | SClassDecl cd ->
+    let superclass_str = match cd.ssuperclass with
+      | Some sc -> "(" ^ sc ^ ")"
+      | None -> ""
+    in
+    indent_lines indent ("class " ^ cd.sclass_name ^ superclass_str ^ ":") ^ "\n" ^
+    string_of_sstmts (indent + 1) cd.sclass_body
 
 and string_of_sstmts indent block =
   match block with
   | SBlock(stmts) -> String.concat "\n" (List.map (string_of_sstmt indent) stmts)
 
-let string_of_sprogram fdecl =
+let string_of_sprogram sfdecl =
   "Parsed program:\n" ^
-  String.concat "\n" (List.map string_of_vdecl fdecl.slocals) ^
-  "\n" ^ string_of_sstmts 0 fdecl.sbody ^ "\n"
+  String.concat "\n" (List.map string_of_vdecl sfdecl.slocals) ^
+  "\n" ^ string_of_sstmts 0 sfdecl.sbody ^ "\n"
