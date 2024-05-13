@@ -20,7 +20,6 @@ lli example.out
 -  `microcparse.mly`: parser
 -  `sast.ml`: definition of the semantically-checked AST
 -  `semant.ml`: semantic checking
--  `irgen.ml`: LLVM IR code generator
 
 ### Other files
 
