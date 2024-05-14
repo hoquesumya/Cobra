@@ -1,6 +1,7 @@
 open Ast
+open Print
 
 let _ =
   let lexbuf = Lexing.from_channel stdin in
-  let program = cobraparse.program Scanner.token lexbuf in
-  print_endline (string_of_program program)
+  let program = Cobraparse.program Scanner.token lexbuf in
+  print_endline (Print.string_of_program program)

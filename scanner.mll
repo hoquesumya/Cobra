@@ -15,6 +15,7 @@ rule token = parse
 | "->"     { ARROW }
 | ':'      { COLON }
 | ','      { COMMA }
+|'&'       {AMP}
 | '+'      { PLUS }
 | '-'      { MINUS }
 | '/'      { DIV }
@@ -24,6 +25,7 @@ rule token = parse
 | "!="     { NEQ }
 | '<'      { LT }
 | "<="      { LTE }
+| "*^"      {DEREF}
 | '>'      { GT }
 | ">="      { GTE }
 | "and"     { AND }

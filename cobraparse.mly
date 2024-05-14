@@ -1,13 +1,14 @@
 %{ open Ast %}
 
 %token NEWLINE LPAREN RPAREN DEF ENDEF ARROW COLON PLUS MINUS MULT DIV ASSIGN
-%token EQ NEQ LT GT LTE GTE AND OR INTPTR BOOLPTR
-%token IF ELSE WHILE INT BOOL
+%token EQ NEQ LT GT LTE GTE AND OR INTPTR BOOLPTR AMP
+%token IF ELSE WHILE INT BOOL UNARY DEREF
 %token RETURN COMMA
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID
 %token EOF
+
 
 %start program
 %type <Ast.program> program
@@ -19,6 +20,9 @@
 %left LT LTE GT GTE
 %left PLUS MINUS
 %left MULT DIV
+%right UNARY
+%right DEREF
+%right AMP
 
 %%
 
@@ -40,6 +44,8 @@ vdecl:
 typ:
   INT   { Int }
   | BOOL  { Bool }
+  | INTPTR {IntPtr}
+  | BOOLPTR {BoolPtr}
 
 fdecl:
   DEF ID LPAREN formals_opt RPAREN ARROW typ COLON NEWLINE vdecl_list stmt_list ENDEF
@@ -91,6 +97,11 @@ expr:
   | ID ASSIGN expr         { Assign($1, $3) }
   | LPAREN expr RPAREN     { $2 }
   | ID LPAREN args_opt RPAREN { Call($1, $3) }
+  
+  /* comment when run cobra.native ; comment out when run test/func_mem*/
+ /*| DEREF ID ASSIGN expr { AssignRef ($2,$4)}
+  | AMP expr %prec UNARY { Ref $2 }
+  | DEREF ID %prec UNARY { Deref(Id($2)) }*/
 
 args_opt:
   { [] }

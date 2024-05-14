@@ -25,6 +25,9 @@ let rec string_of_expr = function
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+ (*| Ref(e) -> "(&" ^ string_of_expr e ^ ")"*)
+  (*| Deref(e) -> "(*" ^ string_of_expr e ^ ")"*)
+  (*| AssignRef(v, e) ->"*"^ v ^ " = " ^ string_of_expr e*)
 
 let rec string_of_stmt = function
     Block(stmts) ->
@@ -38,6 +41,8 @@ let rec string_of_stmt = function
 let string_of_typ = function
     Int -> "int"
   | Bool -> "bool"
+  | IntPtr -> "int*"
+  | BoolPtr -> "bool*"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 

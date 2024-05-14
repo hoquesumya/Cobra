@@ -1,6 +1,6 @@
 type op = Add | Sub | Mult | Divide | Equal | Neq | Less | LessEq | Greater | GreaterEq | And | Or
 
-type typ = Int | Bool 
+type typ = Int | Bool | IntPtr | BoolPtr
 
 type expr =
     Literal of int
@@ -9,6 +9,10 @@ type expr =
   | Binop of expr * op * expr
   | Assign of string * expr
   | Call of string * expr list
+  (*
+  | Ref of expr
+  | Deref of expr 
+  | AssignRef of string * expr*)
 
 type stmt =
     Block of stmt list
